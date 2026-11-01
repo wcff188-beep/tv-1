@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Prayer Clock - Masjid Darussalam Al-Amin</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Background Slideshow -->
+    <div class="slideshow-container" id="slideshowContainer">
+        <div class="overlay-dark"></div>
+    </div>
+
+    <!-- Tampilan Layar Gelap (Blackout Mode) -->
+    <div class="blackout-mode" id="blackoutScreen">
+        <h2>SHOLAT BERJAMAAH SEDANG BERLANGSUNG</h2>
+        <p style="margin-top: 10px; color: #aaa;">Harap matikan / silent handphone Anda</p>
+    </div>
+
+    <div class="tv-container">
+        <!-- Header Masjid -->
+        <div class="header-masjid">
+            <h1 id="namaMasjidDisplay">Masjid Darussalam Al-Amin</h1>
+            <p id="lokasiDisplay">Kel. Kalibaru, Kec. Cilincing, Jakarta Utara</p>
+        </div>
+
+        <!-- Jam & Tanggal -->
+        <div class="main-content">
+            <div class="clock-box" id="liveClock">00:00:00</div>
+            <div class="date-box">
+                <div class="date-masehi" id="dateMasehi">Kamis, 01 November 2026</div>
+                <div class="date-hijriah" id="dateHijriah">20 Jumadil Awal 1448 H</div>
+            </div>
+        </div>
+
+        <!-- Countdown / Info Bar -->
+        <div class="info-bar">
+            <span id="nextPrayerInfo">Menuju Waktu Salat</span>
+            <span id="ramadhanInfo">Masjid Darussalam Al-Amin</span>
+        </div>
+
+        <!-- Jadwal Salat (Imsak - Isya) -->
+        <div class="prayer-schedule-bar">
+            <div class="prayer-card" id="card-imsak">
+                <div class="prayer-name">Imsak</div>
+                <div class="prayer-time" id="time-imsak">--:--</div>
+            </div>
+            <div class="prayer-card" id="card-subuh">
+                <div class="prayer-name">Subuh</div>
+                <div class="prayer-time" id="time-subuh">--:--</div>
+            </div>
+            <div class="prayer-card" id="card-syuruq">
+                <div class="prayer-name">Syuruq</div>
+                <div class="prayer-time" id="time-syuruq">--:--</div>
+            </div>
+            <div class="prayer-card active" id="card-zuhur">
+                <div class="prayer-name">Zuhur</div>
+                <div class="prayer-time" id="time-zuhur">--:--</div>
+            </div>
+            <div class="prayer-card" id="card-asar">
+                <div class="prayer-name">Asar</div>
+                <div class="prayer-time" id="time-asar">--:--</div>
+            </div>
+            <div class="prayer-card" id="card-magrib">
+                <div class="prayer-name">Magrib</div>
+                <div class="prayer-time" id="time-magrib">--:--</div>
+            </div>
+            <div class="prayer-card" id="card-isya">
+                <div class="prayer-name">Isya</div>
+                <div class="prayer-time" id="time-isya">--:--</div>
+            </div>
+        </div>
+
+        <!-- Running Text -->
+        <div class="running-text-container">
+            <div class="running-text" id="runningTextContent">
+                Ikuti kajian rutin setiap hari kamis ba'da zuhur di Masjid Darussalam Al-Amin.
+            </div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/display.js"></script>
+</body>
+</html>
