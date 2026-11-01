@@ -119,13 +119,16 @@ document.addEventListener("DOMContentLoaded", function () {
             { id: 'isya', time: timeToMinutes(currentSchedule.isya) }
         ];
 
-        let activeId = 'isya'; 
-        for (let i = 0; i < prayers.length; i++) {
-            if (currentMinutes < prayers[i].time) {
-                activeId = i === 0 ? 'isya' : prayers[i - 1].id;
-                break;
-            } else if (i === prayers.length - 1) {
+        // Menentukan waktu salat aktif: langsung berpindah ke jadwal berikutnya begitu jam melewati waktu tersebut
+        let activeId = 'isya';
+        for (let i = prayers.length - 1; i >= 0; i--) {
+            if (currentMinutes >= prayers[i].time) {
                 activeId = prayers[i].id;
+                break;
+            }
+            // Jika sebelum imsak di hari itu, anggap aktif di isya hari sebelumnya
+            if (i === 0 && currentMinutes < prayers[0].time) {
+                activeId = 'isya';
             }
         }
 
@@ -138,7 +141,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
 
-        // Beri tanda oranye pada waktu salat aktif
+        // Beri tanda oranye pada kartu yang aktif saat ini
         let activeCard = document.getElementById(`card-${activeId}`);
         if (activeCard) {
             activeCard.style.background = "linear-gradient(135deg, #f39c12, #e67e22)";
@@ -150,17 +153,14 @@ document.addEventListener("DOMContentLoaded", function () {
             let magribMinutes = timeToMinutes(currentSchedule.magrib);
             let hijriDateObj = new Date();
             
-            // Jika sudah lewat atau pas waktu magrib, hitung masuk hari Hijriah berikutnya (+1 hari)
             if (currentMinutes >= magribMinutes) {
                 hijriDateObj.setDate(hijriDateObj.getDate() + 1);
             }
 
-            // Menampilkan format tanggal Hijriah (menyesuaikan format bawaan browser/lokal Islam)
             try {
                 let options = { calendar: 'islamic-umalqura', day: 'numeric', month: 'long', year: 'numeric' };
                 dateHijriah.innerText = new Intl.DateTimeFormat('id-ID-u-ca-islamic-umalqura', options).format(hijriDateObj);
             } catch (e) {
-                // Fallback jika format islamic tidak didukung browser
                 dateHijriah.innerText = "";
             }
         }
