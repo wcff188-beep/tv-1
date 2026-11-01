@@ -11,15 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let currentSlideIndex = 0;
     let slideshowInterval = null;
     let slidesImages = [];
-    let currentSchedule = {
-        imsak: "04:00",
-        subuh: "04:10",
-        syuruq: "05:30",
-        zuhur: "11:40",
-        asar: "14:50",
-        magrib: "17:45",
-        isya: "19:00"
-    };
+    let currentSchedule = {};
 
     async function fetchData() {
         if (!CONFIG || !CONFIG.API_URL) return;
@@ -63,32 +55,34 @@ document.addEventListener("DOMContentLoaded", function () {
                 return String(s.tanggal).split('T')[0].trim() === todayStr;
             });
 
-            if (schedule) {
-                currentSchedule = schedule;
-            }
-        }
-
-        if (currentSchedule) {
-            function cleanTime(val) {
-                if (!val) return "--:--";
-                let s = String(val).trim();
-                if (s.includes('T')) {
-                    let parts = s.split('T');
-                    if (parts[1]) return parts[1].substring(0, 5);
-                }
-                if (s.length >= 5) {
-                    return s.substring(0, 5);
-                }
-                return s;
+            if (!schedule) {
+                schedule = appData.JADWAL_SHOLAT[0];
             }
 
-            document.getElementById("time-imsak").innerText = cleanTime(currentSchedule.imsak);
-            document.getElementById("time-subuh").innerText = cleanTime(currentSchedule.subuh);
-            document.getElementById("time-syuruq").innerText = cleanTime(currentSchedule.syuruq);
-            document.getElementById("time-zuhur").innerText = cleanTime(currentSchedule.zuhur);
-            document.getElementById("time-asar").innerText = cleanTime(currentSchedule.asar);
-            document.getElementById("time-magrib").innerText = cleanTime(currentSchedule.magrib);
-            document.getElementById("time-isya").innerText = cleanTime(currentSchedule.isya);
+            currentSchedule = schedule;
+
+            if (currentSchedule) {
+                function cleanTime(val) {
+                    if (!val) return "--:--";
+                    let s = String(val).trim();
+                    if (s.includes('T')) {
+                        let parts = s.split('T');
+                        if (parts[1]) return parts[1].substring(0, 5);
+                    }
+                    if (s.length >= 5) {
+                        return s.substring(0, 5);
+                    }
+                    return s;
+                }
+
+                document.getElementById("time-imsak").innerText = cleanTime(currentSchedule.imsak);
+                document.getElementById("time-subuh").innerText = cleanTime(currentSchedule.subuh);
+                document.getElementById("time-syuruq").innerText = cleanTime(currentSchedule.syuruq);
+                document.getElementById("time-zuhur").innerText = cleanTime(currentSchedule.zuhur);
+                document.getElementById("time-asar").innerText = cleanTime(currentSchedule.asar);
+                document.getElementById("time-magrib").innerText = cleanTime(currentSchedule.magrib);
+                document.getElementById("time-isya").innerText = cleanTime(currentSchedule.isya);
+            }
         }
 
         if (appData.SLIDESHOW) {
@@ -109,17 +103,23 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function updateActivePrayerHighlight() {
+        if (!currentSchedule || !currentSchedule.subuh) return;
+
         const now = new Date();
         const currentTimeStr = String(now.getHours()).padStart(2, '0') + ":" + String(now.getMinutes()).padStart(2, '0');
         let currentMinutes = timeToMinutes(currentTimeStr);
 
-        let prayerKeys = ['imsak', 'subuh', 'syuruq', 'zuhur', 'asar', 'magrib', 'isya'];
-        let prayers = prayerKeys.map(k => ({
-            id: k,
-            time: timeToMinutes(currentSchedule[k])
-        }));
+        let prayers = [
+            { id: 'imsak', time: timeToMinutes(currentSchedule.imsak) },
+            { id: 'subuh', time: timeToMinutes(currentSchedule.subuh) },
+            { id: 'syuruq', time: timeToMinutes(currentSchedule.syuruq) },
+            { id: 'zuhur', time: timeToMinutes(currentSchedule.zuhur) },
+            { id: 'asar', time: timeToMinutes(currentSchedule.asar) },
+            { id: 'magrib', time: timeToMinutes(currentSchedule.magrib) },
+            { id: 'isya', time: timeToMinutes(currentSchedule.isya) }
+        ];
 
-        let activeId = 'isya';
+        let activeId = 'isya'; 
         for (let i = prayers.length - 1; i >= 0; i--) {
             if (currentMinutes >= prayers[i].time) {
                 activeId = prayers[i].id;
@@ -130,21 +130,18 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
 
-        // Hapus kelas active dari semua kartu
-        prayerKeys.forEach(p => {
+        ['imsak', 'subuh', 'syuruq', 'zuhur', 'asar', 'magrib', 'isya'].forEach(p => {
             let el = document.getElementById(`card-${p}`);
             if (el) {
                 el.classList.remove('active');
             }
         });
 
-        // Beri kelas active ke kartu yang sedang berjalan
         let activeCard = document.getElementById(`card-${activeId}`);
         if (activeCard) {
             activeCard.classList.add('active');
         }
 
-        // Tanggal Hijriah berganti saat Magrib
         if (dateHijriah && currentSchedule.magrib) {
             let magribMinutes = timeToMinutes(currentSchedule.magrib);
             let hijriDateObj = new Date();
