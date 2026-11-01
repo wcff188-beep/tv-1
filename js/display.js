@@ -54,17 +54,26 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         // Update Jadwal Salat Hari Ini
-        if (appData.JADWAL_SHOLAT && appData.JADWAL_SHOLAT.length > 0) {
-            let todayStr = new Date().toISOString().split('T')[0];
-            let schedule = appData.JADWAL_SHOLAT.find(s => s.tanggal === todayStr) || appData.JADWAL_SHOLAT[0];
+       if (appData.JADWAL_SHOLAT && appData.JADWAL_SHOLAT.length > 0) {
+            let todayStr = "2026-11-01"; // Tanggal uji coba sesuai spreadsheet
+            
+            // Cari yang cocok dengan tanggal hari ini, jika tidak ada ambil baris pertama
+            let schedule = appData.JADWAL_SHOLAT.find(s => String(s.tanggal).trim() === todayStr);
+            if (!schedule) {
+                schedule = appData.JADWAL_SHOLAT[0];
+            }
+            
+            currentSchedule = schedule;
 
-            document.getElementById("time-imsak").innerText = schedule.imsak || "--:--";
-            document.getElementById("time-subuh").innerText = schedule.subuh || "--:--";
-            document.getElementById("time-syuruq").innerText = schedule.syuruq || "--:--";
-            document.getElementById("time-zuhur").innerText = schedule.zuhur || "--:--";
-            document.getElementById("time-asar").innerText = schedule.asar || "--:--";
-            document.getElementById("time-magrib").innerText = schedule.magrib || "--:--";
-            document.getElementById("time-isya").innerText = schedule.isya || "--:--";
+            if (currentSchedule) {
+                document.getElementById("time-imsak").innerText = currentSchedule.imsak || "--:--";
+                document.getElementById("time-subuh").innerText = currentSchedule.subuh || "--:--";
+                document.getElementById("time-syuruq").innerText = currentSchedule.syuruq || "--:--";
+                document.getElementById("time-zuhur").innerText = currentSchedule.zuhur || "--:--";
+                document.getElementById("time-asar").innerText = currentSchedule.asar || "--:--";
+                document.getElementById("time-magrib").innerText = currentSchedule.magrib || "--:--";
+                document.getElementById("time-isya").innerText = currentSchedule.isya || "--:--";
+            }
         }
 
         // Update Slideshow Foto (4 Foto Bergantian)
