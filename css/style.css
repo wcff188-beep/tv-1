@@ -119,26 +119,33 @@ body {
 .prayer-schedule-bar {
   position: relative;
   z-index: 10;
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 10px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
   text-align: center;
 }
 
 .prayer-card {
-  background: rgba(44, 62, 80, 0.85);
+  flex: 1;
+  background: rgba(30, 39, 46, 0.85);
   border-radius: 8px;
-  padding: 8px;
-  border: 1px solid #34495e;
+  padding: 10px 5px;
+  border: 1px solid #485460;
+  transition: all 0.3s ease;
 }
+
+/* Kotak aktif berubah jadi oranye terang sesuai referensi */
 .prayer-card.active {
-  background: #e67e22;
-  border-color: #d35400;
+  background: linear-gradient(135deg, #f39c12, #e67e22) !important;
+  border-color: #d35400 !important;
+  box-shadow: 0 4px 10px rgba(243, 156, 18, 0.4);
 }
+
 .prayer-name {
   font-size: 16px;
   color: #ecf0f1;
   margin-bottom: 4px;
+  font-weight: 600;
 }
 .prayer-time {
   font-size: 22px;
@@ -150,7 +157,7 @@ body {
   position: relative;
   z-index: 10;
   background: rgba(0, 0, 0, 0.85);
-  padding: 6px;
+  padding: 8px;
   overflow: hidden;
   white-space: nowrap;
   border-radius: 4px;
