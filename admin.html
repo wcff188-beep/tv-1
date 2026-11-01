@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Controller - Masjid Darussalam Al-Amin</title>
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+    <div class="admin-container">
+        <h2>Admin Controller Masjid</h2>
+        
+        <!-- Pengaturan Umum -->
+        <div class="section-title">Pengaturan Umum</div>
+        <div class="form-group">
+            <label>Nama Masjid</label>
+            <input type="text" id="inputNamaMasjid" value="Masjid Darussalam Al-Amin">
+        </div>
+        <div class="form-group">
+            <label>Durasi Slideshow Foto (Detik)</label>
+            <input type="number" id="inputSlideshowDurasi" value="7">
+        </div>
+        <button onclick="updatePengaturan()">Simpan Pengaturan</button>
+
+        <!-- Pengaturan Running Text -->
+        <div class="section-title">Running Text / Pesan Berjalan</div>
+        <div class="form-group">
+            <label>Teks Berjalan di Layar TV</label>
+            <input type="text" id="inputRunningText" value="Ikuti kajian rutin setiap hari kamis...">
+        </div>
+        <button onclick="updateRunningText()">Simpan Running Text</button>
+
+        <!-- Tambah Foto Slideshow -->
+        <div class="section-title">Kelola Slideshow Foto</div>
+        <div class="form-group">
+            <label>ID Foto (1, 2, 3, dst)</label>
+            <input type="number" id="inputPhotoId" placeholder="Contoh: 5">
+        </div>
+        <div class="form-group">
+            <label>URL Gambar (Link Foto)</label>
+            <input type="text" id="inputPhotoUrl" placeholder="https://...">
+        </div>
+        <button onclick="tambahFoto()" style="background-color: #2980b9;">Tambah Foto Slideshow</button>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>
