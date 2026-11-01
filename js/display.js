@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
     const liveClock = document.getElementById("liveClock");
     const dateMasehi = document.getElementById("dateMasehi");
+    const dateHijriah = document.getElementById("dateHijriah");
     const namaMasjidDisplay = document.getElementById("namaMasjidDisplay");
     const lokasiDisplay = document.getElementById("lokasiDisplay");
     const slideshowContainer = document.getElementById("slideshowContainer");
@@ -93,23 +94,23 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    function timeToMinutes(tStr) {
+        if (!tStr) return 0;
+        let clean = String(tStr);
+        if (clean.includes('T')) clean = clean.split('T')[1];
+        let parts = clean.split(':');
+        return parseInt(parts[0] || 0) * 60 + parseInt(parts[1] || 0);
+    }
+
     function updateActivePrayerHighlight() {
         if (!currentSchedule || !currentSchedule.subuh) return;
 
         const now = new Date();
         const currentTimeStr = String(now.getHours()).padStart(2, '0') + ":" + String(now.getMinutes()).padStart(2, '0');
-
-        function timeToMinutes(tStr) {
-            if (!tStr) return 0;
-            let clean = String(tStr);
-            if (clean.includes('T')) clean = clean.split('T')[1];
-            let parts = clean.split(':');
-            return parseInt(parts[0] || 0) * 60 + parseInt(parts[1] || 0);
-        }
-
         let currentMinutes = timeToMinutes(currentTimeStr);
 
         let prayers = [
+            { id: 'imsak', time: timeToMinutes(currentSchedule.imsak) },
             { id: 'subuh', time: timeToMinutes(currentSchedule.subuh) },
             { id: 'syuruq', time: timeToMinutes(currentSchedule.syuruq) },
             { id: 'zuhur', time: timeToMinutes(currentSchedule.zuhur) },
@@ -118,7 +119,7 @@ document.addEventListener("DOMContentLoaded", function () {
             { id: 'isya', time: timeToMinutes(currentSchedule.isya) }
         ];
 
-        let activeId = 'isya'; // Default jika lewat isya
+        let activeId = 'isya'; 
         for (let i = 0; i < prayers.length; i++) {
             if (currentMinutes < prayers[i].time) {
                 activeId = i === 0 ? 'isya' : prayers[i - 1].id;
@@ -128,20 +129,40 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
 
-        // Reset semua card jadwal menjadi warna normal
+        // Reset semua kartu jadwal
         ['imsak', 'subuh', 'syuruq', 'zuhur', 'asar', 'magrib', 'isya'].forEach(p => {
             let el = document.getElementById(`card-${p}`);
             if (el) {
-                el.style.background = ""; // kembali ke style asal
-                el.classList.remove('active-prayer');
+                el.style.background = ""; 
+                el.classList.remove('active-prayer', 'active');
             }
         });
 
-        // Beri tanda oranye pada card waktu salat yang sedang aktif
+        // Beri tanda oranye pada waktu salat aktif
         let activeCard = document.getElementById(`card-${activeId}`);
         if (activeCard) {
             activeCard.style.background = "linear-gradient(135deg, #f39c12, #e67e22)";
             activeCard.classList.add('active-prayer');
+        }
+
+        // Logika Pergantian Tanggal Hijriah Mulai Waktu Magrib
+        if (dateHijriah && currentSchedule.magrib) {
+            let magribMinutes = timeToMinutes(currentSchedule.magrib);
+            let hijriDateObj = new Date();
+            
+            // Jika sudah lewat atau pas waktu magrib, hitung masuk hari Hijriah berikutnya (+1 hari)
+            if (currentMinutes >= magribMinutes) {
+                hijriDateObj.setDate(hijriDateObj.getDate() + 1);
+            }
+
+            // Menampilkan format tanggal Hijriah (menyesuaikan format bawaan browser/lokal Islam)
+            try {
+                let options = { calendar: 'islamic-umalqura', day: 'numeric', month: 'long', year: 'numeric' };
+                dateHijriah.innerText = new Intl.DateTimeFormat('id-ID-u-ca-islamic-umalqura', options).format(hijriDateObj);
+            } catch (e) {
+                // Fallback jika format islamic tidak didukung browser
+                dateHijriah.innerText = "";
+            }
         }
     }
 
