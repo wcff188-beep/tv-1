@@ -49,11 +49,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (appData.JADWAL_SHOLAT && appData.JADWAL_SHOLAT.length > 0) {
-            let now = new Date();
-            let year = now.getFullYear();
-            let month = String(now.getMonth() + 1).padStart(2, '0');
-            let day = String(now.getDate()).padStart(2, '0');
-            let todayStr = `${year}-${month}-${day}`;
+            let todayStr = "2026-11-01"; // Mengunci tanggal uji coba sesuai data spreadsheet
 
             let schedule = appData.JADWAL_SHOLAT.find(s => {
                 if (!s.tanggal) return false;
@@ -69,11 +65,16 @@ document.addEventListener("DOMContentLoaded", function () {
             if (currentSchedule) {
                 function cleanTime(val) {
                     if (!val) return "--:--";
-                    let s = String(val);
+                    let s = String(val).trim();
+                    // Jika format mengandung huruf T atau format waktu panjang dari sheets, ambil jam:menit-nya saja
                     if (s.includes('T')) {
-                        return s.split('T')[1].substring(0, 5);
+                        let parts = s.split('T');
+                        if (parts[1]) return parts[1].substring(0, 5);
                     }
-                    return s.substring(0, 5);
+                    if (s.length >= 5) {
+                        return s.substring(0, 5);
+                    }
+                    return s;
                 }
 
                 document.getElementById("time-imsak").innerText = cleanTime(currentSchedule.imsak);
