@@ -119,20 +119,19 @@ document.addEventListener("DOMContentLoaded", function () {
             { id: 'isya', time: timeToMinutes(currentSchedule.isya) }
         ];
 
-        // Menentukan waktu salat aktif: langsung berpindah ke jadwal berikutnya begitu jam melewati waktu tersebut
+        // Tentukan waktu salat aktif berdasarkan jam saat ini yang sudah terlewati
         let activeId = 'isya';
         for (let i = prayers.length - 1; i >= 0; i--) {
             if (currentMinutes >= prayers[i].time) {
                 activeId = prayers[i].id;
                 break;
             }
-            // Jika sebelum imsak di hari itu, anggap aktif di isya hari sebelumnya
             if (i === 0 && currentMinutes < prayers[0].time) {
                 activeId = 'isya';
             }
         }
 
-        // Reset semua kartu jadwal
+        // Reset semua kartu jadwal ke warna asal
         ['imsak', 'subuh', 'syuruq', 'zuhur', 'asar', 'magrib', 'isya'].forEach(p => {
             let el = document.getElementById(`card-${p}`);
             if (el) {
@@ -141,14 +140,14 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
 
-        // Beri tanda oranye pada kartu yang aktif saat ini
+        // Beri warna oranye tegas pada kartu yang aktif sesuai ID di index.html Anda
         let activeCard = document.getElementById(`card-${activeId}`);
         if (activeCard) {
             activeCard.style.background = "linear-gradient(135deg, #f39c12, #e67e22)";
             activeCard.classList.add('active-prayer');
         }
 
-        // Logika Pergantian Tanggal Hijriah Mulai Waktu Magrib
+        // Pergantian Tanggal Hijriah mulai waktu Magrib
         if (dateHijriah && currentSchedule.magrib) {
             let magribMinutes = timeToMinutes(currentSchedule.magrib);
             let hijriDateObj = new Date();
