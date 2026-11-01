@@ -1,8 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // 1. Inisialisasi Variabel Global & Elemen DOM
     const liveClock = document.getElementById("liveClock");
     const dateMasehi = document.getElementById("dateMasehi");
-    const dateHijriah = document.getElementById("dateHijriah");
     const namaMasjidDisplay = document.getElementById("namaMasjidDisplay");
     const lokasiDisplay = document.getElementById("lokasiDisplay");
     const slideshowContainer = document.getElementById("slideshowContainer");
@@ -14,14 +12,14 @@ document.addEventListener("DOMContentLoaded", function () {
     let currentSlideIndex = 0;
     let slideshowInterval = null;
     let slidesImages = [];
+    let currentSchedule = {};
+    
+    let isAlarmActive = false;
+    let isIqamahActive = false;
+    let isBlackoutActive = false;
 
-    // 2. Fungsi Mengambil Data dari Google Apps Script
     async function fetchData() {
-        if (!CONFIG || !CONFIG.API_URL || CONFIG.API_URL.includes("https://script.google.com/macros/s/AKfycbz0EGO5D70XayPObX3Llm1G3X0iUkPr57-tK3QnBUMZCqxaQ4moNCUN3YN8UFu88V4/exec")) {
-            console.warn("URL API belum dikonfigurasi di js/config.js");
-            return;
-        }
-
+        if (!CONFIG || !CONFIG.API_URL) return;
         try {
             let response = await fetch(CONFIG.API_URL + "?action=getData");
             let result = await response.json();
@@ -30,13 +28,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 updateUIFromDatabase();
             }
         } catch (error) {
-            console.error("Gagal mengambil data dari server:", error);
+            console.error("Gagal mengambil data:", error);
         }
     }
 
-    // 3. Update Tampilan Berdasarkan Database Spreadsheet
     function updateUIFromDatabase() {
-        // Update Pengaturan Umum
         if (appData.PENGATURAN) {
             appData.PENGATURAN.forEach(item => {
                 if (item.kunci === "nama_masjid" && namaMasjidDisplay) namaMasjidDisplay.innerText = item.nilai;
@@ -44,7 +40,6 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         }
 
-        // Update Running Text & Alarm
         if (appData.ALARM) {
             appData.ALARM.forEach(item => {
                 if (item.kunci === "running_text" && runningTextContent) {
@@ -53,42 +48,46 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         }
 
-        // Update Jadwal Salat Hari Ini
-       if (appData.JADWAL_SHOLAT && appData.JADWAL_SHOLAT.length > 0) {
-            let todayStr = "2026-11-01"; // Tanggal uji coba sesuai spreadsheet
-            
-            // Cari yang cocok dengan tanggal hari ini, jika tidak ada ambil baris pertama
-            let schedule = appData.JADWAL_SHOLAT.find(s => String(s.tanggal).trim() === todayStr);
+        if (appData.JADWAL_SHOLAT && appData.JADWAL_SHOLAT.length > 0) {
+            let now = new Date();
+            let year = now.getFullYear();
+            let month = String(now.getMonth() + 1).padStart(2, '0');
+            let day = String(now.getDate()).padStart(2, '0');
+            let todayStr = `${year}-${month}-${day}`;
+
+            let schedule = appData.JADWAL_SHOLAT.find(s => {
+                if (!s.tanggal) return false;
+                return String(s.tanggal).split('T')[0].trim() === todayStr;
+            });
+
             if (!schedule) {
                 schedule = appData.JADWAL_SHOLAT[0];
             }
-            
+
             currentSchedule = schedule;
 
-           if (currentSchedule) {
-                // Fungsi kecil untuk merapikan jam dari format Google Sheets
-                function formatTime(val) {
+            if (currentSchedule) {
+                function cleanTime(val) {
                     if (!val) return "--:--";
-                    // Jika formatnya mengandung huruf 'T' (ISO string dari Sheets), ambil jam dan menitnya saja
-                    if (val.includes('T')) {
-                        let timePart = val.split('T')[1];
-                        return timePart.substring(0, 5); // Mengambil HH:MM
+                    let s = String(val);
+                    if (s.includes('T')) {
+                        return s.split('T')[1].substring(0, 5);
                     }
-                    return String(val).substring(0, 5);
+                    return s.substring(0, 5);
                 }
 
-                document.getElementById("time-imsak").innerText = formatTime(currentSchedule.imsak);
-                document.getElementById("time-subuh").innerText = formatTime(currentSchedule.subuh);
-                document.getElementById("time-syuruq").innerText = formatTime(currentSchedule.syuruq);
-                document.getElementById("time-zuhur").innerText = formatTime(currentSchedule.zuhur);
-                document.getElementById("time-asar").innerText = formatTime(currentSchedule.asar);
-                document.getElementById("time-magrib").innerText = formatTime(currentSchedule.magrib);
-                document.getElementById("time-isya").innerText = formatTime(currentSchedule.isya);
+                document.getElementById("time-imsak").innerText = cleanTime(currentSchedule.imsak);
+                document.getElementById("time-subuh").innerText = cleanTime(currentSchedule.subuh);
+                document.getElementById("time-syuruq").innerText = cleanTime(currentSchedule.syuruq);
+                document.getElementById("time-zuhur").innerText = cleanTime(currentSchedule.zuhur);
+                document.getElementById("time-asar").innerText = cleanTime(currentSchedule.asar);
+                document.getElementById("time-magrib").innerText = cleanTime(currentSchedule.magrib);
+                document.getElementById("time-isya").innerText = cleanTime(currentSchedule.isya);
             }
+        }
 
-        // Update Slideshow Foto (4 Foto Bergantian)
         if (appData.SLIDESHOW) {
-            let activeSlides = appData.SLIDESHOW.filter(s => s.aktif.toString() === "true");
+            let activeSlides = appData.SLIDESHOW.filter(s => String(s.aktif).toLowerCase() === "true");
             if (activeSlides.length > 0) {
                 slidesImages = activeSlides.map(s => s.url_foto);
                 initSlideshow();
@@ -96,31 +95,25 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // 4. Logika Jam Real-Time & Tanggal
     function updateClock() {
         const now = new Date();
         let hours = String(now.getHours()).padStart(2, '0');
         let minutes = String(now.getMinutes()).padStart(2, '0');
         let seconds = String(now.getSeconds()).padStart(2, '0');
-
+        
         if (liveClock) {
             liveClock.innerText = `${hours}:${minutes}:${seconds}`;
         }
 
-        // Format Tanggal Masehi Bahasa Indonesia
-        const optionsMasehi = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         if (dateMasehi) {
-            dateMasehi.innerText = now.toLocaleDateString('id-ID', optionsMasehi);
+            dateMasehi.innerText = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         }
     }
 
-    // 5. Inisialisasi & Pengaturan Slideshow (Berganti Setiap 7 Detik dengan Transisi Fade)
     function initSlideshow() {
-        // Hapus elemen gambar lama jika ada
-        const existingImgs = slideshowContainer.querySelectorAll('.slide-img');
-        existingImgs.forEach(img => img.remove());
+        if (!slideshowContainer) return;
+        slideshowContainer.querySelectorAll('.slide-img').forEach(img => img.remove());
 
-        // Masukkan elemen gambar baru ke container
         slidesImages.forEach((url, index) => {
             let img = document.createElement("img");
             img.src = url;
@@ -128,34 +121,18 @@ document.addEventListener("DOMContentLoaded", function () {
             slideshowContainer.appendChild(img);
         });
 
-        // Ambil durasi slideshow dari pengaturan (default 7 detik jika belum ada)
-        let duration = 7000;
-        if (appData.PENGATURAN) {
-            let durSetting = appData.PENGATURAN.find(s => s.kunci === "slideshow_durasi");
-            if (durSetting && durSetting.nilai) {
-                duration = parseInt(durSetting.nilai) * 1000;
-            }
-        }
-
-        // Jalankan interval pergantian foto
         if (slideshowInterval) clearInterval(slideshowInterval);
-        slideshowInterval = setInterval(changeSlide, duration);
+        slideshowInterval = setInterval(() => {
+            const imgs = slideshowContainer.querySelectorAll('.slide-img');
+            if (imgs.length === 0) return;
+            imgs[currentSlideIndex].classList.remove('active');
+            currentSlideIndex = (currentSlideIndex + 1) % imgs.length;
+            imgs[currentSlideIndex].classList.add('active');
+        }, 7000);
     }
 
-    function changeSlide() {
-        const imgs = slideshowContainer.querySelectorAll('.slide-img');
-        if (imgs.length === 0) return;
-
-        imgs[currentSlideIndex].classList.remove('active');
-        currentSlideIndex = (currentSlideIndex + 1) % imgs.length;
-        imgs[currentSlideIndex].classList.add('active');
-    }
-
-    // Jalankan Fungsi Utama
     setInterval(updateClock, 1000);
     updateClock();
     fetchData();
-
-    // Refresh data dari spreadsheet secara berkala (sesuai config)
-    setInterval(fetchData, CONFIG.REFRESH_INTERVAL || 60000);
+    setInterval(fetchData, 60000);
 });
