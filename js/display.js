@@ -4,8 +4,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const namaMasjidDisplay = document.getElementById("namaMasjidDisplay");
     const lokasiDisplay = document.getElementById("lokasiDisplay");
     const slideshowContainer = document.getElementById("slideshowContainer");
-    const blackoutScreen = document.getElementById("blackoutScreen");
-    const nextPrayerInfo = document.getElementById("nextPrayerInfo");
     const runningTextContent = document.getElementById("runningTextContent");
 
     let appData = {};
@@ -13,10 +11,6 @@ document.addEventListener("DOMContentLoaded", function () {
     let slideshowInterval = null;
     let slidesImages = [];
     let currentSchedule = {};
-    
-    let isAlarmActive = false;
-    let isIqamahActive = false;
-    let isBlackoutActive = false;
 
     async function fetchData() {
         if (!CONFIG || !CONFIG.API_URL) return;
@@ -49,7 +43,11 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (appData.JADWAL_SHOLAT && appData.JADWAL_SHOLAT.length > 0) {
-            let todayStr = "2026-11-01"; // Mengunci tanggal uji coba sesuai data spreadsheet
+            let now = new Date();
+            let year = now.getFullYear();
+            let month = String(now.getMonth() + 1).padStart(2, '0');
+            let day = String(now.getDate()).padStart(2, '0');
+            let todayStr = `${year}-${month}-${day}`;
 
             let schedule = appData.JADWAL_SHOLAT.find(s => {
                 if (!s.tanggal) return false;
@@ -66,7 +64,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 function cleanTime(val) {
                     if (!val) return "--:--";
                     let s = String(val).trim();
-                    // Jika format mengandung huruf T atau format waktu panjang dari sheets, ambil jam:menit-nya saja
                     if (s.includes('T')) {
                         let parts = s.split('T');
                         if (parts[1]) return parts[1].substring(0, 5);
@@ -96,6 +93,58 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    function updateActivePrayerHighlight() {
+        if (!currentSchedule || !currentSchedule.subuh) return;
+
+        const now = new Date();
+        const currentTimeStr = String(now.getHours()).padStart(2, '0') + ":" + String(now.getMinutes()).padStart(2, '0');
+
+        function timeToMinutes(tStr) {
+            if (!tStr) return 0;
+            let clean = String(tStr);
+            if (clean.includes('T')) clean = clean.split('T')[1];
+            let parts = clean.split(':');
+            return parseInt(parts[0] || 0) * 60 + parseInt(parts[1] || 0);
+        }
+
+        let currentMinutes = timeToMinutes(currentTimeStr);
+
+        let prayers = [
+            { id: 'subuh', time: timeToMinutes(currentSchedule.subuh) },
+            { id: 'syuruq', time: timeToMinutes(currentSchedule.syuruq) },
+            { id: 'zuhur', time: timeToMinutes(currentSchedule.zuhur) },
+            { id: 'asar', time: timeToMinutes(currentSchedule.asar) },
+            { id: 'magrib', time: timeToMinutes(currentSchedule.magrib) },
+            { id: 'isya', time: timeToMinutes(currentSchedule.isya) }
+        ];
+
+        let activeId = 'isya'; // Default jika lewat isya
+        for (let i = 0; i < prayers.length; i++) {
+            if (currentMinutes < prayers[i].time) {
+                activeId = i === 0 ? 'isya' : prayers[i - 1].id;
+                break;
+            } else if (i === prayers.length - 1) {
+                activeId = prayers[i].id;
+            }
+        }
+
+        // Reset semua card jadwal menjadi warna normal
+        ['imsak', 'subuh', 'syuruq', 'zuhur', 'asar', 'magrib', 'isya'].forEach(p => {
+            let el = document.getElementById(`card-${p}`);
+            if (el) {
+                el.style.background = ""; // kembali ke style asal
+                el.classList.remove('active-prayer');
+            }
+        });
+
+        // Beri tanda oranye pada card waktu salat yang sedang aktif
+        let activeCard = document.getElementById(`card-${activeId}`);
+        if (activeCard) {
+            activeCard.style.background = "linear-gradient(135deg, #f39c12, #e67e22)";
+            activeCard.classList.add('active-prayer');
+        }
+    }
+
     function updateClock() {
         const now = new Date();
         let hours = String(now.getHours()).padStart(2, '0');
@@ -109,6 +158,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (dateMasehi) {
             dateMasehi.innerText = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         }
+
+        updateActivePrayerHighlight();
     }
 
     function initSlideshow() {
