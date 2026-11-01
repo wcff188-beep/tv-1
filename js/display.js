@@ -11,7 +11,17 @@ document.addEventListener("DOMContentLoaded", function () {
     let currentSlideIndex = 0;
     let slideshowInterval = null;
     let slidesImages = [];
-    let currentSchedule = {};
+    
+    // Jadwal fallback default (jika spreadsheet telat merespons)
+    let currentSchedule = {
+        imsak: "04:00",
+        subuh: "04:10",
+        syuruq: "05:30",
+        zuhur: "11:40",
+        asar: "14:50",
+        magrib: "17:45",
+        isya: "19:00"
+    };
 
     async function fetchData() {
         if (!CONFIG || !CONFIG.API_URL) return;
@@ -55,34 +65,32 @@ document.addEventListener("DOMContentLoaded", function () {
                 return String(s.tanggal).split('T')[0].trim() === todayStr;
             });
 
-            if (!schedule) {
-                schedule = appData.JADWAL_SHOLAT[0];
+            if (schedule) {
+                currentSchedule = schedule;
             }
+        }
 
-            currentSchedule = schedule;
-
-            if (currentSchedule) {
-                function cleanTime(val) {
-                    if (!val) return "--:--";
-                    let s = String(val).trim();
-                    if (s.includes('T')) {
-                        let parts = s.split('T');
-                        if (parts[1]) return parts[1].substring(0, 5);
-                    }
-                    if (s.length >= 5) {
-                        return s.substring(0, 5);
-                    }
-                    return s;
+        if (currentSchedule) {
+            function cleanTime(val) {
+                if (!val) return "--:--";
+                let s = String(val).trim();
+                if (s.includes('T')) {
+                    let parts = s.split('T');
+                    if (parts[1]) return parts[1].substring(0, 5);
                 }
-
-                document.getElementById("time-imsak").innerText = cleanTime(currentSchedule.imsak);
-                document.getElementById("time-subuh").innerText = cleanTime(currentSchedule.subuh);
-                document.getElementById("time-syuruq").innerText = cleanTime(currentSchedule.syuruq);
-                document.getElementById("time-zuhur").innerText = cleanTime(currentSchedule.zuhur);
-                document.getElementById("time-asar").innerText = cleanTime(currentSchedule.asar);
-                document.getElementById("time-magrib").innerText = cleanTime(currentSchedule.magrib);
-                document.getElementById("time-isya").innerText = cleanTime(currentSchedule.isya);
+                if (s.length >= 5) {
+                    return s.substring(0, 5);
+                }
+                return s;
             }
+
+            document.getElementById("time-imsak").innerText = cleanTime(currentSchedule.imsak);
+            document.getElementById("time-subuh").innerText = cleanTime(currentSchedule.subuh);
+            document.getElementById("time-syuruq").innerText = cleanTime(currentSchedule.syuruq);
+            document.getElementById("time-zuhur").innerText = cleanTime(currentSchedule.zuhur);
+            document.getElementById("time-asar").innerText = cleanTime(currentSchedule.asar);
+            document.getElementById("time-magrib").innerText = cleanTime(currentSchedule.magrib);
+            document.getElementById("time-isya").innerText = cleanTime(currentSchedule.isya);
         }
 
         if (appData.SLIDESHOW) {
@@ -103,8 +111,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function updateActivePrayerHighlight() {
-        if (!currentSchedule || !currentSchedule.subuh) return;
-
         const now = new Date();
         const currentTimeStr = String(now.getHours()).padStart(2, '0') + ":" + String(now.getMinutes()).padStart(2, '0');
         let currentMinutes = timeToMinutes(currentTimeStr);
@@ -126,16 +132,15 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
 
-        // Paksa reset semua kartu ke tampilan gelap asal
+        // Reset semua kartu ke warna asal
         prayerKeys.forEach(p => {
             let el = document.getElementById(`card-${p}`);
             if (el) {
-                el.style.background = "rgba(44, 62, 80, 0.85)"; // Warna default card Anda
-                el.style.border = "none";
+                el.style.background = "rgba(44, 62, 80, 0.85)";
             }
         });
 
-        // Paksa beri warna oranye langsung ke elemen card yang aktif
+        // Beri warna oranye tegas pada kartu yang aktif
         let activeCard = document.getElementById(`card-${activeId}`);
         if (activeCard) {
             activeCard.style.background = "linear-gradient(135deg, #f39c12, #e67e22)";
