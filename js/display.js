@@ -109,17 +109,12 @@ document.addEventListener("DOMContentLoaded", function () {
         const currentTimeStr = String(now.getHours()).padStart(2, '0') + ":" + String(now.getMinutes()).padStart(2, '0');
         let currentMinutes = timeToMinutes(currentTimeStr);
 
-        let prayers = [
-            { id: 'imsak', time: timeToMinutes(currentSchedule.imsak) },
-            { id: 'subuh', time: timeToMinutes(currentSchedule.subuh) },
-            { id: 'syuruq', time: timeToMinutes(currentSchedule.syuruq) },
-            { id: 'zuhur', time: timeToMinutes(currentSchedule.zuhur) },
-            { id: 'asar', time: timeToMinutes(currentSchedule.asar) },
-            { id: 'magrib', time: timeToMinutes(currentSchedule.magrib) },
-            { id: 'isya', time: timeToMinutes(currentSchedule.isya) }
-        ];
+        let prayerKeys = ['imsak', 'subuh', 'syuruq', 'zuhur', 'asar', 'magrib', 'isya'];
+        let prayers = prayerKeys.map(k => ({
+            id: k,
+            time: timeToMinutes(currentSchedule[k])
+        }));
 
-        // Tentukan waktu salat aktif berdasarkan jam saat ini yang sudah terlewati
         let activeId = 'isya';
         for (let i = prayers.length - 1; i >= 0; i--) {
             if (currentMinutes >= prayers[i].time) {
@@ -131,23 +126,22 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
 
-        // Reset semua kartu jadwal ke warna asal
-        ['imsak', 'subuh', 'syuruq', 'zuhur', 'asar', 'magrib', 'isya'].forEach(p => {
+        // Paksa reset semua kartu ke tampilan gelap asal
+        prayerKeys.forEach(p => {
             let el = document.getElementById(`card-${p}`);
             if (el) {
-                el.style.background = ""; 
-                el.classList.remove('active-prayer', 'active');
+                el.style.background = "rgba(44, 62, 80, 0.85)"; // Warna default card Anda
+                el.style.border = "none";
             }
         });
 
-        // Beri warna oranye tegas pada kartu yang aktif sesuai ID di index.html Anda
+        // Paksa beri warna oranye langsung ke elemen card yang aktif
         let activeCard = document.getElementById(`card-${activeId}`);
         if (activeCard) {
             activeCard.style.background = "linear-gradient(135deg, #f39c12, #e67e22)";
-            activeCard.classList.add('active-prayer');
         }
 
-        // Pergantian Tanggal Hijriah mulai waktu Magrib
+        // Tanggal Hijriah berganti saat Magrib
         if (dateHijriah && currentSchedule.magrib) {
             let magribMinutes = timeToMinutes(currentSchedule.magrib);
             let hijriDateObj = new Date();
