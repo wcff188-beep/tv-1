@@ -65,16 +65,26 @@ document.addEventListener("DOMContentLoaded", function () {
             
             currentSchedule = schedule;
 
-            if (currentSchedule) {
-                document.getElementById("time-imsak").innerText = currentSchedule.imsak || "--:--";
-                document.getElementById("time-subuh").innerText = currentSchedule.subuh || "--:--";
-                document.getElementById("time-syuruq").innerText = currentSchedule.syuruq || "--:--";
-                document.getElementById("time-zuhur").innerText = currentSchedule.zuhur || "--:--";
-                document.getElementById("time-asar").innerText = currentSchedule.asar || "--:--";
-                document.getElementById("time-magrib").innerText = currentSchedule.magrib || "--:--";
-                document.getElementById("time-isya").innerText = currentSchedule.isya || "--:--";
+           if (currentSchedule) {
+                // Fungsi kecil untuk merapikan jam dari format Google Sheets
+                function formatTime(val) {
+                    if (!val) return "--:--";
+                    // Jika formatnya mengandung huruf 'T' (ISO string dari Sheets), ambil jam dan menitnya saja
+                    if (val.includes('T')) {
+                        let timePart = val.split('T')[1];
+                        return timePart.substring(0, 5); // Mengambil HH:MM
+                    }
+                    return String(val).substring(0, 5);
+                }
+
+                document.getElementById("time-imsak").innerText = formatTime(currentSchedule.imsak);
+                document.getElementById("time-subuh").innerText = formatTime(currentSchedule.subuh);
+                document.getElementById("time-syuruq").innerText = formatTime(currentSchedule.syuruq);
+                document.getElementById("time-zuhur").innerText = formatTime(currentSchedule.zuhur);
+                document.getElementById("time-asar").innerText = formatTime(currentSchedule.asar);
+                document.getElementById("time-magrib").innerText = formatTime(currentSchedule.magrib);
+                document.getElementById("time-isya").innerText = formatTime(currentSchedule.isya);
             }
-        }
 
         // Update Slideshow Foto (4 Foto Bergantian)
         if (appData.SLIDESHOW) {
