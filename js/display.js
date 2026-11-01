@@ -102,6 +102,39 @@ document.addEventListener("DOMContentLoaded", function () {
         return parseInt(parts[0] || 0) * 60 + parseInt(parts[1] || 0);
     }
 
+    function getHijriDate(dateObj) {
+        let day = dateObj.getDate();
+        let month = dateObj.getMonth();
+        let year = dateObj.getFullYear();
+
+        if (month < 2) {
+            year -= 1;
+            month += 12;
+        }
+
+        let a = Math.floor(year / 100);
+        let b = 2 - a + Math.floor(a / 4);
+        let julianDay = Math.floor(365.25 * (year + 4716)) + Math.floor(30.6001 * (month + 1)) + day + b - 1524.5;
+
+        let l = julianDay - 1948440 + 10632;
+        let n = Math.floor((l - 1) / 10631);
+        l = l - 10631 * n + 354;
+        let j = (Math.floor((10985 - l) / 5316)) * (Math.floor((50 * l) / 17719)) + (Math.floor(l / 5670)) * (Math.floor((43 * l) / 15238));
+        l = l - (Math.floor((30 - j) / 15)) * (Math.floor((17719 * j) / 50)) - (Math.floor(j / 16)) * (Math.floor((15238 * j) / 43)) + 29;
+        
+        let monthHijri = Math.floor((24 * l) / 709);
+        let dayHijri = l - Math.floor((709 * monthHijri) / 24);
+        let yearHijri = 30 * n + j - 30;
+
+        let hijriMonths = [
+            "Muharram", "Safar", "Rabi'ul Awal", "Rabi'ul Akhir",
+            "Jumadil Awal", "Jumadil Akhir", "Rajab", "Sya'ban",
+            "Ramadhan", "Syawal", "Zulqa'dah", "Zulhijjah"
+        ];
+
+        return `${dayHijri} ${hijriMonths[monthHijri - 1]} ${yearHijri} H`;
+    }
+
     function updateActivePrayerHighlight() {
         if (!currentSchedule || !currentSchedule.subuh) return;
 
@@ -146,16 +179,12 @@ document.addEventListener("DOMContentLoaded", function () {
             let magribMinutes = timeToMinutes(currentSchedule.magrib);
             let hijriDateObj = new Date();
             
+            // Berganti hari Hijriah otomatis begitu jam menyentuh waktu Magrib
             if (currentMinutes >= magribMinutes) {
                 hijriDateObj.setDate(hijriDateObj.getDate() + 1);
             }
 
-            try {
-                let options = { calendar: 'islamic-umalqura', day: 'numeric', month: 'long', year: 'numeric' };
-                dateHijriah.innerText = new Intl.DateTimeFormat('id-ID-u-ca-islamic-umalqura', options).format(hijriDateObj);
-            } catch (e) {
-                dateHijriah.innerText = "";
-            }
+            dateHijriah.innerText = getHijriDate(hijriDateObj);
         }
     }
 
