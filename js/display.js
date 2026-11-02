@@ -102,6 +102,28 @@ document.addEventListener("DOMContentLoaded", function () {
         return parseInt(parts[0] || 0) * 60 + parseInt(parts[1] || 0);
     }
 
+    function getHijriDate(dateObj) {
+        const hijriMonths = [
+            "Muharram", "Safar", "Rabi'ul Awal", "Rabi'ul Akhir",
+            "Jumadil Awal", "Jumadil Akhir", "Rajab", "Sya'ban",
+            "Ramadhan", "Syawal", "Zulqa'dah", "Zulhijjah"
+        ];
+        try {
+            // Minta format angka (numeric) agar tidak diterjemahkan jadi Mei
+            let formatter = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', {
+                day: 'numeric', month: 'numeric', year: 'numeric'
+            });
+            let parts = formatter.formatToParts(dateObj);
+            let hDay = parts.find(p => p.type === 'day').value;
+            let hMonth = parts.find(p => p.type === 'month').value;
+            let hYear = parts.find(p => p.type === 'year').value.replace(/[^0-9]/g, '');
+
+            return `${hDay} ${hijriMonths[parseInt(hMonth) - 1]} ${hYear} H`;
+        } catch (e) {
+            return "";
+        }
+    }
+
     function updateActivePrayerHighlight() {
         if (!currentSchedule || !currentSchedule.subuh) return;
 
@@ -129,7 +151,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
 
-        // Reset semua kartu jadwal
         ['imsak', 'subuh', 'syuruq', 'zuhur', 'asar', 'magrib', 'isya'].forEach(p => {
             let el = document.getElementById(`card-${p}`);
             if (el) {
@@ -138,31 +159,21 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
 
-        // Beri tanda oranye pada waktu salat aktif
         let activeCard = document.getElementById(`card-${activeId}`);
         if (activeCard) {
             activeCard.style.background = "linear-gradient(135deg, #f39c12, #e67e22)";
             activeCard.classList.add('active-prayer');
         }
 
-        // Logika Pergantian Tanggal Hijriah Mulai Waktu Magrib
         if (dateHijriah && currentSchedule.magrib) {
             let magribMinutes = timeToMinutes(currentSchedule.magrib);
             let hijriDateObj = new Date();
             
-            // Jika sudah lewat atau pas waktu magrib, hitung masuk hari Hijriah berikutnya (+1 hari)
             if (currentMinutes >= magribMinutes) {
                 hijriDateObj.setDate(hijriDateObj.getDate() + 1);
             }
 
-            // Menampilkan format tanggal Hijriah (menyesuaikan format bawaan browser/lokal Islam)
-            try {
-                let options = { calendar: 'islamic-umalqura', day: 'numeric', month: 'long', year: 'numeric' };
-                dateHijriah.innerText = new Intl.DateTimeFormat('id-ID-u-ca-islamic-umalqura', options).format(hijriDateObj);
-            } catch (e) {
-                // Fallback jika format islamic tidak didukung browser
-                dateHijriah.innerText = "";
-            }
+            dateHijriah.innerText = getHijriDate(hijriDateObj);
         }
     }
 
