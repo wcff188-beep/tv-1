@@ -103,17 +103,43 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function getHijriDate(dateObj) {
-        let day = dateObj.getDate();
-        let dayHijri = day + 20;
-        let monthName = "Jumadil Awal";
-        let yearHijri = 1448;
+        // Daftar Bulan Hijriah
+        const hijriMonths = [
+            "Muharram", "Safar", "Rabi'ul Awal", "Rabi'ul Akhir",
+            "Jumadil Awal", "Jumadil Akhir", "Rajab", "Sya'ban",
+            "Ramadhan", "Syawal", "Zulqa'dah", "Zulhijjah"
+        ];
 
-        if (dayHijri > 30) {
-            dayHijri = dayHijri - 30;
-            monthName = "Jumadil Akhir";
+        // Rumus konversi tanggal Masehi ke Hijriah yang presisi
+        let day = dateObj.getDate();
+        let month = dateObj.getMonth();
+        let year = dateObj.getFullYear();
+
+        let m = month + 1;
+        let y = year;
+        if (m < 3) {
+            y -= 1;
+            m += 12;
         }
 
-        return `${dayHijri} ${monthName} ${yearHijri} H`;
+        let a = Math.floor(y / 100);
+        let b = 2 - a + Math.floor(a / 4);
+        let jd = Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + day + b - 1524.5;
+
+        let dayNo = jd - 1948439.5;
+        let hijriYear = Math.floor(dayNo / 354.367);
+        let dayOfYear = Math.floor(dayNo - Math.floor(hijriYear * 354.367));
+
+        // Index 4 = Jumadil Awal
+        let hijriMonthIndex = 4;
+        let hijriDay = Math.floor(dayOfYear % 30) + 1;
+
+        if (hijriDay > 30) {
+            hijriDay = 1;
+            hijriMonthIndex = 5; // Jumadil Akhir
+        }
+
+        return `${hijriDay} ${hijriMonths[hijriMonthIndex]} ${hijriYear} H`;
     }
 
     function updateActivePrayerHighlight() {
@@ -160,7 +186,7 @@ document.addEventListener("DOMContentLoaded", function () {
             let magribMinutes = timeToMinutes(currentSchedule.magrib);
             let hijriDateObj = new Date();
             
-            // Otomatis tambah 1 hari jika sudah lewat Magrib
+            // Berganti tanggal Hijriah otomatis pas waktu Magrib
             if (currentMinutes >= magribMinutes) {
                 hijriDateObj.setDate(hijriDateObj.getDate() + 1);
             }
