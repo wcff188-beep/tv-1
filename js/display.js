@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const lokasiDisplay = document.getElementById("lokasiDisplay");
     const slideshowContainer = document.getElementById("slideshowContainer");
     const runningTextContent = document.getElementById("runningTextContent");
+    const countdownSalat = document.getElementById("countdownSalat");
 
     let appData = {};
     let currentSlideIndex = 0;
@@ -50,29 +51,16 @@ document.addEventListener("DOMContentLoaded", function () {
             let day = String(now.getDate()).padStart(2, '0');
             let todayStr = `${year}-${month}-${day}`;
 
-            let schedule = appData.JADWAL_SHOLAT.find(s => {
-                if (!s.tanggal) return false;
-                return String(s.tanggal).split('T')[0].trim() === todayStr;
-            });
-
-            if (!schedule) {
-                schedule = appData.JADWAL_SHOLAT[0];
-            }
-
+            let schedule = appData.JADWAL_SHOLAT.find(s => s.tanggal && String(s.tanggal).split('T')[0].trim() === todayStr);
+            if (!schedule) schedule = appData.JADWAL_SHOLAT[0];
             currentSchedule = schedule;
 
             if (currentSchedule) {
                 function cleanTime(val) {
                     if (!val) return "--:--";
                     let s = String(val).trim();
-                    if (s.includes('T')) {
-                        let parts = s.split('T');
-                        if (parts[1]) return parts[1].substring(0, 5);
-                    }
-                    if (s.length >= 5) {
-                        return s.substring(0, 5);
-                    }
-                    return s;
+                    if (s.includes('T')) s = s.split('T')[1];
+                    return s.substring(0, 5);
                 }
 
                 document.getElementById("time-imsak").innerText = cleanTime(currentSchedule.imsak);
@@ -94,110 +82,92 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    function timeToMinutes(tStr) {
+    function timeToSeconds(tStr) {
         if (!tStr) return 0;
-        let clean = String(tStr);
+        let clean = String(tStr).trim();
         if (clean.includes('T')) clean = clean.split('T')[1];
         let parts = clean.split(':');
-        return parseInt(parts[0] || 0) * 60 + parseInt(parts[1] || 0);
+        return (parseInt(parts[0] || 0) * 3600) + (parseInt(parts[1] || 0) * 60);
     }
 
     function getHijriDate(dateObj) {
-        const hijriMonths = [
-            "Muharram", "Safar", "Rabi'ul Awal", "Rabi'ul Akhir",
-            "Jumadil Awal", "Jumadil Akhir", "Rajab", "Sya'ban",
-            "Ramadhan", "Syawal", "Zulqa'dah", "Zulhijjah"
-        ];
+        const hijriMonths = ["Muharram", "Safar", "Rabi'ul Awal", "Rabi'ul Akhir", "Jumadil Awal", "Jumadil Akhir", "Rajab", "Sya'ban", "Ramadhan", "Syawal", "Zulqa'dah", "Zulhijjah"];
         try {
-            // Minta format angka (numeric) agar tidak diterjemahkan jadi Mei
-            let formatter = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', {
-                day: 'numeric', month: 'numeric', year: 'numeric'
-            });
+            let formatter = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', { day: 'numeric', month: 'numeric', year: 'numeric' });
             let parts = formatter.formatToParts(dateObj);
             let hDay = parts.find(p => p.type === 'day').value;
             let hMonth = parts.find(p => p.type === 'month').value;
             let hYear = parts.find(p => p.type === 'year').value.replace(/[^0-9]/g, '');
-
             return `${hDay} ${hijriMonths[parseInt(hMonth) - 1]} ${hYear} H`;
-        } catch (e) {
-            return "";
-        }
+        } catch (e) { return ""; }
     }
 
-    function updateActivePrayerHighlight() {
+    function updateClockAndHighlight() {
+        const now = new Date();
+        const currentSecs = (now.getHours() * 3600) + (now.getMinutes() * 60) + now.getSeconds();
+        
+        // Update Jam & Tanggal
+        if (liveClock) liveClock.innerText = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        if (dateMasehi) dateMasehi.innerText = now.toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+
         if (!currentSchedule || !currentSchedule.subuh) return;
 
-        const now = new Date();
-        const currentTimeStr = String(now.getHours()).padStart(2, '0') + ":" + String(now.getMinutes()).padStart(2, '0');
-        let currentMinutes = timeToMinutes(currentTimeStr);
-
         let prayers = [
-            { id: 'imsak', time: timeToMinutes(currentSchedule.imsak) },
-            { id: 'subuh', time: timeToMinutes(currentSchedule.subuh) },
-            { id: 'syuruq', time: timeToMinutes(currentSchedule.syuruq) },
-            { id: 'zuhur', time: timeToMinutes(currentSchedule.zuhur) },
-            { id: 'asar', time: timeToMinutes(currentSchedule.asar) },
-            { id: 'magrib', time: timeToMinutes(currentSchedule.magrib) },
-            { id: 'isya', time: timeToMinutes(currentSchedule.isya) }
+            { id: 'imsak', time: timeToSeconds(currentSchedule.imsak), name: 'Imsak' },
+            { id: 'subuh', time: timeToSeconds(currentSchedule.subuh), name: 'Subuh' },
+            { id: 'syuruq', time: timeToSeconds(currentSchedule.syuruq), name: 'Syuruq' },
+            { id: 'zuhur', time: timeToSeconds(currentSchedule.zuhur), name: 'Dzuhur' },
+            { id: 'asar', time: timeToSeconds(currentSchedule.asar), name: 'Ashar' },
+            { id: 'magrib', time: timeToSeconds(currentSchedule.magrib), name: 'Maghrib' },
+            { id: 'isya', time: timeToSeconds(currentSchedule.isya), name: 'Isya' }
         ];
 
-        let activeId = 'isya'; 
+        let activeId = 'isya';
+        let nextPrayer = prayers[0];
+
+        // Cari waktu salat aktif dan berikutnya
         for (let i = 0; i < prayers.length; i++) {
-            if (currentMinutes < prayers[i].time) {
+            if (currentSecs < prayers[i].time) {
                 activeId = i === 0 ? 'isya' : prayers[i - 1].id;
+                nextPrayer = prayers[i];
                 break;
             } else if (i === prayers.length - 1) {
                 activeId = prayers[i].id;
+                nextPrayer = { name: 'Imsak (Esok)', time: prayers[0].time + 86400 }; 
             }
         }
 
+        // Reset highlight
         ['imsak', 'subuh', 'syuruq', 'zuhur', 'asar', 'magrib', 'isya'].forEach(p => {
-            let el = document.getElementById(`card-${p}`);
-            if (el) {
-                el.style.background = ""; 
-                el.classList.remove('active-prayer', 'active');
-            }
+            let el = document.getElementById(`col-${p}`);
+            if (el) el.classList.remove('active');
         });
 
-        let activeCard = document.getElementById(`card-${activeId}`);
-        if (activeCard) {
-            activeCard.style.background = "linear-gradient(135deg, #f39c12, #e67e22)";
-            activeCard.classList.add('active-prayer');
+        // Set active highlight (Warna background nama salat & garis bawah berubah jadi oranye)
+        let activeCard = document.getElementById(`col-${activeId}`);
+        if (activeCard) activeCard.classList.add('active');
+
+        // Hitung Countdown
+        let diffSecs = nextPrayer.time - currentSecs;
+        let h = Math.floor(diffSecs / 3600);
+        let m = Math.floor((diffSecs % 3600) / 60);
+        let s = diffSecs % 60;
+        if (countdownSalat) {
+            countdownSalat.innerText = `${nextPrayer.name} -${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
         }
 
+        // Tanggal Hijriah
         if (dateHijriah && currentSchedule.magrib) {
-            let magribMinutes = timeToMinutes(currentSchedule.magrib);
+            let magribSecs = timeToSeconds(currentSchedule.magrib);
             let hijriDateObj = new Date();
-            
-            if (currentMinutes >= magribMinutes) {
-                hijriDateObj.setDate(hijriDateObj.getDate() + 1);
-            }
-
+            if (currentSecs >= magribSecs) hijriDateObj.setDate(hijriDateObj.getDate() + 1);
             dateHijriah.innerText = getHijriDate(hijriDateObj);
         }
     }
 
-    function updateClock() {
-        const now = new Date();
-        let hours = String(now.getHours()).padStart(2, '0');
-        let minutes = String(now.getMinutes()).padStart(2, '0');
-        let seconds = String(now.getSeconds()).padStart(2, '0');
-        
-        if (liveClock) {
-            liveClock.innerText = `${hours}:${minutes}:${seconds}`;
-        }
-
-        if (dateMasehi) {
-            dateMasehi.innerText = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-        }
-
-        updateActivePrayerHighlight();
-    }
-
     function initSlideshow() {
         if (!slideshowContainer) return;
-        slideshowContainer.querySelectorAll('.slide-img').forEach(img => img.remove());
-
+        slideshowContainer.innerHTML = '';
         slidesImages.forEach((url, index) => {
             let img = document.createElement("img");
             img.src = url;
@@ -215,8 +185,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 7000);
     }
 
-    setInterval(updateClock, 1000);
-    updateClock();
+    setInterval(updateClockAndHighlight, 1000);
+    updateClockAndHighlight();
     fetchData();
     setInterval(fetchData, 60000);
 });
