@@ -124,7 +124,7 @@
     <!-- LAYAR IQOMAH -->
     <div id="iqomahOverlay" class="iqomah-overlay">
         <h1 class="iqomah-title">WAKTU IQOMAH</h1>
-        <div class="iqomah-timer" id="iqomahTimer">05:00</div>
+        <div class="iqomah-timer" id="iqomahTimer">10:00</div>
         <p class="iqomah-subtitle">Mohon luruskan dan rapatkan shaf shalat</p>
     </div>
 
@@ -152,45 +152,46 @@
         let currentSchedule = {};
         let lastActivePrayer = null;
 
-        // Variabel untuk Interval Layar Iqomah
         let iqomahInterval = null;
         let blankTimeout = null;
 
-        // --- SISTEM SUARA BEEP ---
+        // --- SISTEM SUARA BEEP (LEBIH PANJANG) ---
         function playBeep() {
             try {
                 const AudioContext = window.AudioContext || window.webkitAudioContext;
                 const ctx = new AudioContext();
                 const now = ctx.currentTime;
                 
-                function createTone(startTime) {
+                function createTone(startTime, duration) {
                     const osc = ctx.createOscillator();
                     const gain = ctx.createGain();
                     osc.type = 'sine';
                     osc.frequency.setValueAtTime(850, startTime);
                     gain.gain.setValueAtTime(1, startTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.4);
+                    gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
                     
                     osc.connect(gain);
                     gain.connect(ctx.destination);
                     osc.start(startTime);
-                    osc.stop(startTime + 0.4);
+                    osc.stop(startTime + duration);
                 }
 
-                // Beep 3 kali
-                createTone(now);
-                createTone(now + 0.6);
-                createTone(now + 1.2);
+                // Beep panjang 5 kali berturut-turut (Total alarm 5 detik)
+                createTone(now, 0.8);
+                createTone(now + 1.0, 0.8);
+                createTone(now + 2.0, 0.8);
+                createTone(now + 3.0, 0.8);
+                createTone(now + 4.0, 0.8);
             } catch (error) {
                 console.log("Audio tidak didukung atau diblokir:", error);
             }
         }
 
-        // --- FUNGSI LAYAR IQOMAH (5 MENIT) ---
+        // --- FUNGSI LAYAR IQOMAH (10 MENIT) ---
         function startIqomah() {
-            let iqomahTimeLeft = 5 * 60; // 5 Menit dalam detik
+            let iqomahTimeLeft = 10 * 60; // Diubah jadi 10 Menit dalam detik
             document.getElementById('iqomahOverlay').style.display = 'flex';
-            document.getElementById('iqomahTimer').innerText = '05:00';
+            document.getElementById('iqomahTimer').innerText = '10:00';
             
             if (iqomahInterval) clearInterval(iqomahInterval);
             if (blankTimeout) clearTimeout(blankTimeout);
@@ -201,20 +202,19 @@
                 let s = iqomahTimeLeft % 60;
                 document.getElementById('iqomahTimer').innerText = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 
-                // Jika hitungan iqomah habis
                 if (iqomahTimeLeft <= 0) {
                     clearInterval(iqomahInterval);
-                    startBlankScreen(); // Lanjut ke layar hitam
+                    startBlankScreen();
                 }
             }, 1000);
         }
 
         // --- FUNGSI LAYAR HITAM SHALAT (5 MENIT) ---
         function startBlankScreen() {
-            document.getElementById('iqomahOverlay').style.display = 'none'; // Tutup layar iqomah
-            document.getElementById('blankOverlay').style.display = 'block'; // Tampilkan layar hitam total
+            document.getElementById('iqomahOverlay').style.display = 'none';
+            document.getElementById('blankOverlay').style.display = 'block';
             
-            // Tunggu 5 Menit, lalu hapus layar hitam dan kembali normal
+            // Tunggu 5 Menit lalu kembali normal
             blankTimeout = setTimeout(() => {
                 document.getElementById('blankOverlay').style.display = 'none';
             }, 5 * 60 * 1000); 
@@ -346,9 +346,8 @@
 
             // TRIGGER ALARM DAN IQOMAH
             if (lastActivePrayer !== null && lastActivePrayer !== activeId) {
-                playBeep(); // Bunyi saat masuk waktu baru
+                playBeep(); // Bunyi lebih panjang saat masuk waktu baru
                 
-                // Pastikan iqomah hanya diputar pada waktu shalat wajib
                 if (['subuh', 'zuhur', 'asar', 'magrib', 'isya'].includes(activeId)) {
                     startIqomah();
                 }
