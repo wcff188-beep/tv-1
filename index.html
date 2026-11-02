@@ -4,63 +4,71 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Digital Prayer Clock</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=20261102">
 </head>
 <body>
-    <div class="slideshow-container" id="slideshowContainer">
-        <div class="overlay-dark"></div>
-    </div>
+    <div class="slideshow-container" id="slideshowContainer"></div>
 
     <div class="tv-container">
-        <div class="header-masjid">
-            <h1 id="namaMasjidDisplay">Masjid Darussalam Al-Amin</h1>
-            <p id="lokasiDisplay">Kel. Kalibaru, Kec. Cilincing, Jakarta Utara</p>
-        </div>
-
-        <div class="main-content">
-            <div class="clock-box" id="liveClock">00:00:00</div>
-            <div class="date-box">
+        <!-- Top Bar (Header Putih) -->
+        <div class="top-bar">
+            <div class="top-left">
+                <div class="clock-display" id="liveClock">00:00</div>
+            </div>
+            <div class="divider"></div>
+            <div class="top-center">
+                <h1 id="namaMasjidDisplay">Masjid Darussalam Al-Amin</h1>
+                <p id="lokasiDisplay">Kel. Kalibaru, Kec. Cilincing, Jakarta Utara</p>
+            </div>
+            <div class="divider"></div>
+            <div class="top-right">
                 <div class="date-masehi" id="dateMasehi">-</div>
                 <div class="date-hijriah" id="dateHijriah">-</div>
             </div>
         </div>
 
+        <!-- Ruang Kosong Tengah untuk Background -->
+        <div class="spacer"></div>
+
+        <!-- Info Bar (Countdown) -->
         <div class="info-bar">
-            <span id="nextPrayerInfo">Menuju Waktu Salat</span>
-            <span id="ramadhanInfo">Masjid Darussalam Al-Amin</span>
+            <div class="info-left" id="countdownSalat">Menuju Salat --:--:--</div>
+            <div class="info-right" id="infoTambahan">Masjid Darussalam Al-Amin</div>
         </div>
 
-        <div class="prayer-schedule-bar">
-            <div class="prayer-card" id="card-imsak">
-                <div class="prayer-name">Imsak</div>
-                <div class="prayer-time" id="time-imsak">--:--</div>
+        <!-- Jadwal Salat Bawah -->
+        <div class="schedule-table">
+            <div class="schedule-col" id="col-imsak">
+                <div class="sched-header bg-imsak">Imsak</div>
+                <div class="sched-time" id="time-imsak">--:--</div>
             </div>
-            <div class="prayer-card" id="card-subuh">
-                <div class="prayer-name">Subuh</div>
-                <div class="prayer-time" id="time-subuh">--:--</div>
+            <div class="schedule-col" id="col-subuh">
+                <div class="sched-header bg-subuh">Subuh</div>
+                <div class="sched-time" id="time-subuh">--:--</div>
             </div>
-            <div class="prayer-card" id="card-syuruq">
-                <div class="prayer-name">Syuruq</div>
-                <div class="prayer-time" id="time-syuruq">--:--</div>
+            <div class="schedule-col" id="col-syuruq">
+                <div class="sched-header bg-syuruq">Syuruq</div>
+                <div class="sched-time" id="time-syuruq">--:--</div>
             </div>
-            <div class="prayer-card" id="card-zuhur">
-                <div class="prayer-name">Zuhur</div>
-                <div class="prayer-time" id="time-zuhur">--:--</div>
+            <div class="schedule-col" id="col-zuhur">
+                <div class="sched-header bg-zuhur">Dzuhur</div>
+                <div class="sched-time" id="time-zuhur">--:--</div>
             </div>
-            <div class="prayer-card" id="card-asar">
-                <div class="prayer-name">Asar</div>
-                <div class="prayer-time" id="time-asar">--:--</div>
+            <div class="schedule-col" id="col-asar">
+                <div class="sched-header bg-asar">Ashar</div>
+                <div class="sched-time" id="time-asar">--:--</div>
             </div>
-            <div class="prayer-card" id="card-magrib">
-                <div class="prayer-name">Magrib</div>
-                <div class="prayer-time" id="time-magrib">--:--</div>
+            <div class="schedule-col" id="col-magrib">
+                <div class="sched-header bg-magrib">Maghrib</div>
+                <div class="sched-time" id="time-magrib">--:--</div>
             </div>
-            <div class="prayer-card" id="card-isya">
-                <div class="prayer-name">Isya</div>
-                <div class="prayer-time" id="time-isya">--:--</div>
+            <div class="schedule-col" id="col-isya">
+                <div class="sched-header bg-isya">Isya</div>
+                <div class="sched-time" id="time-isya">--:--</div>
             </div>
         </div>
 
+        <!-- Running Text -->
         <div class="running-text-container">
             <div class="running-text" id="runningTextContent">
                 Ikuti kajian rutin setiap hari kamis ba'da zuhur di Masjid Darussalam Al-Amin.
