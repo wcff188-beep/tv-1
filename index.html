@@ -13,7 +13,7 @@
         
         .tv-container { position: relative; width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; z-index: 10; }
         
-        /* Header Atas (Makin Kecil & Agak Transparan) */
+        /* Header Atas */
         .top-bar { background: rgba(255, 255, 255, 0.85); display: flex; align-items: center; justify-content: space-between; padding: 5px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
         .divider { width: 2px; height: 28px; background-color: #f39c12; border-radius: 2px; margin: 0 10px; }
         .top-left { flex: 1; text-align: left; }
@@ -25,13 +25,12 @@
         .date-masehi { font-size: 14px; font-weight: bold; color: #2c3e50; }
         .date-hijriah { font-size: 12px; color: #576574; margin-top: 1px; font-weight: 500; }
         
-        /* Ruang Kosong (Maksimal untuk Background) */
         .spacer { flex: 1; }
         
         /* Info Bar */
         .info-bar { background: rgba(255, 255, 255, 0.8); display: flex; justify-content: space-between; padding: 4px 15px; font-weight: bold; color: #2c3e50; font-size: 13px; border-bottom: 2px solid #bdc3c7; }
         
-        /* Tabel Jadwal Salat (Lebih Ramping) */
+        /* Tabel Jadwal Salat */
         .schedule-table { display: flex; width: 100%; }
         .schedule-col { flex: 1; text-align: center; display: flex; flex-direction: column; }
         .sched-header { color: #fff; font-weight: bold; font-size: 13px; padding: 5px 0; text-transform: uppercase; }
@@ -50,21 +49,41 @@
         .schedule-col.active .sched-header { background-color: #f39c12 !important; }
         .schedule-col.active .sched-time { background-color: #fff; color: #000; border-bottom: 4px solid #f39c12; }
         
-        /* Running Text (Lebih Kecil) */
+        /* Running Text */
         .running-text-container { background: rgba(0, 0, 0, 0.85); padding: 8px; overflow: hidden; white-space: nowrap; }
         .running-text { display: inline-block; color: #f1c40f; font-size: 15px; animation: marquee 40s linear infinite; }
         @keyframes marquee { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
+
+        /* ================= LAYAR TAMBAHAN ================= */
+        /* Layar Iqomah */
+        .iqomah-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.9);
+            display: none; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 9998; color: #fff;
+        }
+        .iqomah-title { font-size: 50px; color: #f39c12; margin-bottom: 10px; letter-spacing: 3px; }
+        .iqomah-timer { font-size: 160px; font-weight: bold; color: #fff; margin-bottom: 10px; text-shadow: 0px 5px 15px rgba(243, 156, 18, 0.5); }
+        .iqomah-subtitle { font-size: 24px; color: #bdc3c7; }
+
+        /* Layar Gelap Total (Saat Shalat) */
+        .blank-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #000;
+            display: none;
+            z-index: 9999;
+        }
     </style>
 </head>
 <body>
+    <!-- Background Slideshow -->
     <div class="slideshow-container" id="slideshowContainer"></div>
 
+    <!-- Tampilan Utama Jam -->
     <div class="tv-container">
         <!-- Header Putih -->
         <div class="top-bar">
-            <div class="top-left">
-                <div class="clock-display" id="liveClock">00:00:00</div>
-            </div>
+            <div class="top-left"><div class="clock-display" id="liveClock">00:00:00</div></div>
             <div class="divider"></div>
             <div class="top-center">
                 <h1 id="namaMasjidDisplay">Masjid Darussalam Al-Amin</h1>
@@ -85,47 +104,34 @@
             <div class="info-right" id="infoTambahan">Masjid Darussalam Al-Amin</div>
         </div>
 
-        <!-- Jadwal Warna-warni Bawah -->
+        <!-- Jadwal Warna-warni -->
         <div class="schedule-table">
-            <div class="schedule-col" id="col-imsak">
-                <div class="sched-header bg-imsak">Imsak</div>
-                <div class="sched-time" id="time-imsak">--:--</div>
-            </div>
-            <div class="schedule-col" id="col-subuh">
-                <div class="sched-header bg-subuh">Subuh</div>
-                <div class="sched-time" id="time-subuh">--:--</div>
-            </div>
-            <div class="schedule-col" id="col-syuruq">
-                <div class="sched-header bg-syuruq">Syuruq</div>
-                <div class="sched-time" id="time-syuruq">--:--</div>
-            </div>
-            <div class="schedule-col" id="col-zuhur">
-                <div class="sched-header bg-zuhur">Dzuhur</div>
-                <div class="sched-time" id="time-zuhur">--:--</div>
-            </div>
-            <div class="schedule-col" id="col-asar">
-                <div class="sched-header bg-asar">Ashar</div>
-                <div class="sched-time" id="time-asar">--:--</div>
-            </div>
-            <div class="schedule-col" id="col-magrib">
-                <div class="sched-header bg-magrib">Maghrib</div>
-                <div class="sched-time" id="time-magrib">--:--</div>
-            </div>
-            <div class="schedule-col" id="col-isya">
-                <div class="sched-header bg-isya">Isya</div>
-                <div class="sched-time" id="time-isya">--:--</div>
-            </div>
+            <div class="schedule-col" id="col-imsak"><div class="sched-header bg-imsak">Imsak</div><div class="sched-time" id="time-imsak">--:--</div></div>
+            <div class="schedule-col" id="col-subuh"><div class="sched-header bg-subuh">Subuh</div><div class="sched-time" id="time-subuh">--:--</div></div>
+            <div class="schedule-col" id="col-syuruq"><div class="sched-header bg-syuruq">Syuruq</div><div class="sched-time" id="time-syuruq">--:--</div></div>
+            <div class="schedule-col" id="col-zuhur"><div class="sched-header bg-zuhur">Dzuhur</div><div class="sched-time" id="time-zuhur">--:--</div></div>
+            <div class="schedule-col" id="col-asar"><div class="sched-header bg-asar">Ashar</div><div class="sched-time" id="time-asar">--:--</div></div>
+            <div class="schedule-col" id="col-magrib"><div class="sched-header bg-magrib">Maghrib</div><div class="sched-time" id="time-magrib">--:--</div></div>
+            <div class="schedule-col" id="col-isya"><div class="sched-header bg-isya">Isya</div><div class="sched-time" id="time-isya">--:--</div></div>
         </div>
 
         <!-- Running Text -->
         <div class="running-text-container">
-            <div class="running-text" id="runningTextContent">
-                Ikuti kajian rutin setiap hari kamis ba'da zuhur di Masjid Darussalam Al-Amin.
-            </div>
+            <div class="running-text" id="runningTextContent">Ikuti kajian rutin di Masjid Darussalam Al-Amin.</div>
         </div>
     </div>
 
-    <!-- Panggil Config Saja -->
+    <!-- LAYAR IQOMAH -->
+    <div id="iqomahOverlay" class="iqomah-overlay">
+        <h1 class="iqomah-title">WAKTU IQOMAH</h1>
+        <div class="iqomah-timer" id="iqomahTimer">05:00</div>
+        <p class="iqomah-subtitle">Mohon luruskan dan rapatkan shaf shalat</p>
+    </div>
+
+    <!-- LAYAR GELAP SHALAT -->
+    <div id="blankOverlay" class="blank-overlay"></div>
+
+    <!-- Panggil Config -->
     <script src="js/config.js"></script>
 
     <!-- Skrip JS -->
@@ -143,8 +149,76 @@
         let appData = {};
         let currentSlideIndex = 0;
         let slideshowInterval = null;
-        let slidesImages = [];
         let currentSchedule = {};
+        let lastActivePrayer = null;
+
+        // Variabel untuk Interval Layar Iqomah
+        let iqomahInterval = null;
+        let blankTimeout = null;
+
+        // --- SISTEM SUARA BEEP ---
+        function playBeep() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                const ctx = new AudioContext();
+                const now = ctx.currentTime;
+                
+                function createTone(startTime) {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(850, startTime);
+                    gain.gain.setValueAtTime(1, startTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.4);
+                    
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(startTime);
+                    osc.stop(startTime + 0.4);
+                }
+
+                // Beep 3 kali
+                createTone(now);
+                createTone(now + 0.6);
+                createTone(now + 1.2);
+            } catch (error) {
+                console.log("Audio tidak didukung atau diblokir:", error);
+            }
+        }
+
+        // --- FUNGSI LAYAR IQOMAH (5 MENIT) ---
+        function startIqomah() {
+            let iqomahTimeLeft = 5 * 60; // 5 Menit dalam detik
+            document.getElementById('iqomahOverlay').style.display = 'flex';
+            document.getElementById('iqomahTimer').innerText = '05:00';
+            
+            if (iqomahInterval) clearInterval(iqomahInterval);
+            if (blankTimeout) clearTimeout(blankTimeout);
+
+            iqomahInterval = setInterval(() => {
+                iqomahTimeLeft--;
+                let m = Math.floor(iqomahTimeLeft / 60);
+                let s = iqomahTimeLeft % 60;
+                document.getElementById('iqomahTimer').innerText = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+
+                // Jika hitungan iqomah habis
+                if (iqomahTimeLeft <= 0) {
+                    clearInterval(iqomahInterval);
+                    startBlankScreen(); // Lanjut ke layar hitam
+                }
+            }, 1000);
+        }
+
+        // --- FUNGSI LAYAR HITAM SHALAT (5 MENIT) ---
+        function startBlankScreen() {
+            document.getElementById('iqomahOverlay').style.display = 'none'; // Tutup layar iqomah
+            document.getElementById('blankOverlay').style.display = 'block'; // Tampilkan layar hitam total
+            
+            // Tunggu 5 Menit, lalu hapus layar hitam dan kembali normal
+            blankTimeout = setTimeout(() => {
+                document.getElementById('blankOverlay').style.display = 'none';
+            }, 5 * 60 * 1000); 
+        }
 
         async function fetchData() {
             if (!CONFIG || !CONFIG.API_URL) return;
@@ -207,8 +281,8 @@
             if (appData.SLIDESHOW) {
                 let activeSlides = appData.SLIDESHOW.filter(s => String(s.aktif).toLowerCase() === "true");
                 if (activeSlides.length > 0) {
-                    slidesImages = activeSlides.map(s => s.url_foto);
-                    initSlideshow();
+                    let slidesImages = activeSlides.map(s => s.url_foto);
+                    initSlideshow(slidesImages);
                 }
             }
         }
@@ -270,6 +344,17 @@
                 }
             }
 
+            // TRIGGER ALARM DAN IQOMAH
+            if (lastActivePrayer !== null && lastActivePrayer !== activeId) {
+                playBeep(); // Bunyi saat masuk waktu baru
+                
+                // Pastikan iqomah hanya diputar pada waktu shalat wajib
+                if (['subuh', 'zuhur', 'asar', 'magrib', 'isya'].includes(activeId)) {
+                    startIqomah();
+                }
+            }
+            lastActivePrayer = activeId;
+
             ['imsak', 'subuh', 'syuruq', 'zuhur', 'asar', 'magrib', 'isya'].forEach(p => {
                 let el = document.getElementById(`col-${p}`);
                 if (el) el.classList.remove('active');
@@ -294,10 +379,10 @@
             }
         }
 
-        function initSlideshow() {
+        function initSlideshow(images) {
             if (!slideshowContainer) return;
             slideshowContainer.innerHTML = '';
-            slidesImages.forEach((url, index) => {
+            images.forEach((url, index) => {
                 let img = document.createElement("img");
                 img.src = url;
                 img.className = `slide-img ${index === 0 ? 'active' : ''}`;
