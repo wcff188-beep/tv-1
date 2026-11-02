@@ -13,29 +13,29 @@
         
         .tv-container { position: relative; width: 100vw; height: 100vh; display: flex; flex-direction: column; z-index: 10; }
         
-        /* Header Atas (Putih) */
-        .top-bar { background: rgba(255, 255, 255, 0.95); display: flex; align-items: center; justify-content: space-between; padding: 10px 40px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .divider { width: 3px; height: 60px; background-color: #f39c12; border-radius: 2px; margin: 0 20px; }
+        /* Header Atas (Putih) - Diperkecil */
+        .top-bar { background: rgba(255, 255, 255, 0.95); display: flex; align-items: center; justify-content: space-between; padding: 5px 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .divider { width: 2px; height: 35px; background-color: #f39c12; border-radius: 2px; margin: 0 15px; }
         .top-left { flex: 1; text-align: left; }
-        .clock-display { font-size: 55px; font-weight: bold; color: #2c3e50; letter-spacing: 2px; }
+        .clock-display { font-size: 38px; font-weight: bold; color: #2c3e50; letter-spacing: 1px; }
         .top-center { flex: 2; text-align: center; }
-        .top-center h1 { font-size: 28px; color: #2c3e50; margin-bottom: 2px; font-weight: bold; }
-        .top-center p { font-size: 16px; color: #7f8c8d; }
+        .top-center h1 { font-size: 22px; color: #2c3e50; margin-bottom: 2px; font-weight: bold; }
+        .top-center p { font-size: 13px; color: #7f8c8d; }
         .top-right { flex: 1; text-align: right; }
-        .date-masehi { font-size: 20px; font-weight: bold; color: #2c3e50; }
-        .date-hijriah { font-size: 18px; color: #7f8c8d; margin-top: 5px; font-weight: 500; }
+        .date-masehi { font-size: 16px; font-weight: bold; color: #2c3e50; }
+        .date-hijriah { font-size: 14px; color: #7f8c8d; margin-top: 2px; font-weight: 500; }
         
-        /* Ruang Kosong */
+        /* Ruang Kosong (Lebih Lebar) */
         .spacer { flex: 1; }
         
         /* Info Bar */
-        .info-bar { background: rgba(255, 255, 255, 0.9); display: flex; justify-content: space-between; padding: 6px 20px; font-weight: bold; color: #2c3e50; font-size: 18px; border-bottom: 2px solid #bdc3c7; }
+        .info-bar { background: rgba(255, 255, 255, 0.9); display: flex; justify-content: space-between; padding: 5px 20px; font-weight: bold; color: #2c3e50; font-size: 16px; border-bottom: 2px solid #bdc3c7; }
         
-        /* Tabel Jadwal Salat (Warna-warni) */
+        /* Tabel Jadwal Salat (Disesuaikan) */
         .schedule-table { display: flex; width: 100%; }
         .schedule-col { flex: 1; text-align: center; display: flex; flex-direction: column; }
-        .sched-header { color: #fff; font-weight: bold; font-size: 20px; padding: 12px 0; text-transform: uppercase; }
-        .sched-time { background: rgba(255, 255, 255, 0.95); color: #000; font-size: 38px; font-weight: bold; padding: 15px 0; border-bottom: 6px solid transparent; transition: all 0.3s ease; }
+        .sched-header { color: #fff; font-weight: bold; font-size: 16px; padding: 8px 0; text-transform: uppercase; }
+        .sched-time { background: rgba(255, 255, 255, 0.95); color: #000; font-size: 32px; font-weight: bold; padding: 10px 0; border-bottom: 6px solid transparent; transition: all 0.3s ease; }
         
         /* Warna Header */
         .bg-imsak { background-color: #009432; }
@@ -51,8 +51,8 @@
         .schedule-col.active .sched-time { background-color: #fff; color: #000; border-bottom: 6px solid #f39c12; }
         
         /* Running Text */
-        .running-text-container { background: rgba(0, 0, 0, 0.9); padding: 12px; overflow: hidden; white-space: nowrap; }
-        .running-text { display: inline-block; color: #f1c40f; font-size: 20px; animation: marquee 40s linear infinite; }
+        .running-text-container { background: rgba(0, 0, 0, 0.9); padding: 10px; overflow: hidden; white-space: nowrap; }
+        .running-text { display: inline-block; color: #f1c40f; font-size: 18px; animation: marquee 40s linear infinite; }
         @keyframes marquee { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
     </style>
 </head>
