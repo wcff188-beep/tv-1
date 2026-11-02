@@ -4,16 +4,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Digital Prayer Clock</title>
-    <link rel="stylesheet" href="css/style.css?v=20261102">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #000; overflow: hidden; width: 100vw; height: 100vh; }
+        .slideshow-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        .slide-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.5s ease-in-out; }
+        .slide-img.active { opacity: 1; }
+        
+        .tv-container { position: relative; width: 100vw; height: 100vh; display: flex; flex-direction: column; z-index: 10; }
+        
+        /* Header Atas (Putih) */
+        .top-bar { background: rgba(255, 255, 255, 0.95); display: flex; align-items: center; justify-content: space-between; padding: 10px 40px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .divider { width: 3px; height: 60px; background-color: #f39c12; border-radius: 2px; margin: 0 20px; }
+        .top-left { flex: 1; text-align: left; }
+        .clock-display { font-size: 55px; font-weight: bold; color: #2c3e50; letter-spacing: 2px; }
+        .top-center { flex: 2; text-align: center; }
+        .top-center h1 { font-size: 28px; color: #2c3e50; margin-bottom: 2px; font-weight: bold; }
+        .top-center p { font-size: 16px; color: #7f8c8d; }
+        .top-right { flex: 1; text-align: right; }
+        .date-masehi { font-size: 20px; font-weight: bold; color: #2c3e50; }
+        .date-hijriah { font-size: 18px; color: #7f8c8d; margin-top: 5px; font-weight: 500; }
+        
+        /* Ruang Kosong */
+        .spacer { flex: 1; }
+        
+        /* Info Bar */
+        .info-bar { background: rgba(255, 255, 255, 0.9); display: flex; justify-content: space-between; padding: 6px 20px; font-weight: bold; color: #2c3e50; font-size: 18px; border-bottom: 2px solid #bdc3c7; }
+        
+        /* Tabel Jadwal Salat (Warna-warni) */
+        .schedule-table { display: flex; width: 100%; }
+        .schedule-col { flex: 1; text-align: center; display: flex; flex-direction: column; }
+        .sched-header { color: #fff; font-weight: bold; font-size: 20px; padding: 12px 0; text-transform: uppercase; }
+        .sched-time { background: rgba(255, 255, 255, 0.95); color: #000; font-size: 38px; font-weight: bold; padding: 15px 0; border-bottom: 6px solid transparent; transition: all 0.3s ease; }
+        
+        /* Warna Header */
+        .bg-imsak { background-color: #009432; }
+        .bg-subuh { background-color: #0652DD; }
+        .bg-syuruq { background-color: #12cbc4; }
+        .bg-zuhur { background-color: #f39c12; }
+        .bg-asar { background-color: #9b59b6; }
+        .bg-magrib { background-color: #e84118; }
+        .bg-isya { background-color: #5758BB; }
+        
+        /* Efek Menyala (Aktif) */
+        .schedule-col.active .sched-header { background-color: #f39c12 !important; }
+        .schedule-col.active .sched-time { background-color: #fff; color: #000; border-bottom: 6px solid #f39c12; }
+        
+        /* Running Text */
+        .running-text-container { background: rgba(0, 0, 0, 0.9); padding: 12px; overflow: hidden; white-space: nowrap; }
+        .running-text { display: inline-block; color: #f1c40f; font-size: 20px; animation: marquee 40s linear infinite; }
+        @keyframes marquee { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
+    </style>
 </head>
 <body>
     <div class="slideshow-container" id="slideshowContainer"></div>
 
     <div class="tv-container">
-        <!-- Top Bar (Header Putih) -->
+        <!-- Header Putih -->
         <div class="top-bar">
             <div class="top-left">
-                <div class="clock-display" id="liveClock">00:00</div>
+                <div class="clock-display" id="liveClock">00:00:00</div>
             </div>
             <div class="divider"></div>
             <div class="top-center">
@@ -27,16 +77,15 @@
             </div>
         </div>
 
-        <!-- Ruang Kosong Tengah untuk Background -->
         <div class="spacer"></div>
 
-        <!-- Info Bar (Countdown) -->
+        <!-- Info Bar (Menuju Salat) -->
         <div class="info-bar">
             <div class="info-left" id="countdownSalat">Menuju Salat --:--:--</div>
             <div class="info-right" id="infoTambahan">Masjid Darussalam Al-Amin</div>
         </div>
 
-        <!-- Jadwal Salat Bawah -->
+        <!-- Jadwal Warna-warni Bawah -->
         <div class="schedule-table">
             <div class="schedule-col" id="col-imsak">
                 <div class="sched-header bg-imsak">Imsak</div>
@@ -76,7 +125,200 @@
         </div>
     </div>
 
+    <!-- Panggil Config Saja -->
     <script src="js/config.js"></script>
-    <script src="js/display.js?v=20261102"></script>
+
+    <!-- Skrip JS Digabung Disini -->
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const liveClock = document.getElementById("liveClock");
+        const dateMasehi = document.getElementById("dateMasehi");
+        const dateHijriah = document.getElementById("dateHijriah");
+        const namaMasjidDisplay = document.getElementById("namaMasjidDisplay");
+        const lokasiDisplay = document.getElementById("lokasiDisplay");
+        const slideshowContainer = document.getElementById("slideshowContainer");
+        const runningTextContent = document.getElementById("runningTextContent");
+        const countdownSalat = document.getElementById("countdownSalat");
+
+        let appData = {};
+        let currentSlideIndex = 0;
+        let slideshowInterval = null;
+        let slidesImages = [];
+        let currentSchedule = {};
+
+        async function fetchData() {
+            if (!CONFIG || !CONFIG.API_URL) return;
+            try {
+                let response = await fetch(CONFIG.API_URL + "?action=getData");
+                let result = await response.json();
+                if (result.status === "success") {
+                    appData = result.data;
+                    updateUIFromDatabase();
+                }
+            } catch (error) {
+                console.error("Gagal mengambil data:", error);
+            }
+        }
+
+        function updateUIFromDatabase() {
+            if (appData.PENGATURAN) {
+                appData.PENGATURAN.forEach(item => {
+                    if (item.kunci === "nama_masjid" && namaMasjidDisplay) namaMasjidDisplay.innerText = item.nilai;
+                    if (item.kunci === "lokasi" && lokasiDisplay) lokasiDisplay.innerText = item.nilai;
+                });
+            }
+
+            if (appData.ALARM) {
+                appData.ALARM.forEach(item => {
+                    if (item.kunci === "running_text" && runningTextContent) {
+                        runningTextContent.innerText = item.nilai;
+                    }
+                });
+            }
+
+            if (appData.JADWAL_SHOLAT && appData.JADWAL_SHOLAT.length > 0) {
+                let now = new Date();
+                let year = now.getFullYear();
+                let month = String(now.getMonth() + 1).padStart(2, '0');
+                let day = String(now.getDate()).padStart(2, '0');
+                let todayStr = `${year}-${month}-${day}`;
+
+                let schedule = appData.JADWAL_SHOLAT.find(s => s.tanggal && String(s.tanggal).split('T')[0].trim() === todayStr);
+                if (!schedule) schedule = appData.JADWAL_SHOLAT[0];
+                currentSchedule = schedule;
+
+                if (currentSchedule) {
+                    function cleanTime(val) {
+                        if (!val) return "--:--";
+                        let s = String(val).trim();
+                        if (s.includes('T')) s = s.split('T')[1];
+                        return s.substring(0, 5);
+                    }
+                    document.getElementById("time-imsak").innerText = cleanTime(currentSchedule.imsak);
+                    document.getElementById("time-subuh").innerText = cleanTime(currentSchedule.subuh);
+                    document.getElementById("time-syuruq").innerText = cleanTime(currentSchedule.syuruq);
+                    document.getElementById("time-zuhur").innerText = cleanTime(currentSchedule.zuhur);
+                    document.getElementById("time-asar").innerText = cleanTime(currentSchedule.asar);
+                    document.getElementById("time-magrib").innerText = cleanTime(currentSchedule.magrib);
+                    document.getElementById("time-isya").innerText = cleanTime(currentSchedule.isya);
+                }
+            }
+
+            if (appData.SLIDESHOW) {
+                let activeSlides = appData.SLIDESHOW.filter(s => String(s.aktif).toLowerCase() === "true");
+                if (activeSlides.length > 0) {
+                    slidesImages = activeSlides.map(s => s.url_foto);
+                    initSlideshow();
+                }
+            }
+        }
+
+        function timeToSeconds(tStr) {
+            if (!tStr) return 0;
+            let clean = String(tStr).trim();
+            if (clean.includes('T')) clean = clean.split('T')[1];
+            let parts = clean.split(':');
+            return (parseInt(parts[0] || 0) * 3600) + (parseInt(parts[1] || 0) * 60);
+        }
+
+        function getHijriDate(dateObj) {
+            const hijriMonths = ["Muharram", "Safar", "Rabi'ul Awal", "Rabi'ul Akhir", "Jumadil Awal", "Jumadil Akhir", "Rajab", "Sya'ban", "Ramadhan", "Syawal", "Zulqa'dah", "Zulhijjah"];
+            try {
+                let formatter = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', { day: 'numeric', month: 'numeric', year: 'numeric' });
+                let parts = formatter.formatToParts(dateObj);
+                let hDay = parts.find(p => p.type === 'day').value;
+                let hMonth = parts.find(p => p.type === 'month').value;
+                let hYear = parts.find(p => p.type === 'year').value.replace(/[^0-9]/g, '');
+                return `${hDay} ${hijriMonths[parseInt(hMonth) - 1]} ${hYear} H`;
+            } catch (e) { return ""; }
+        }
+
+        function updateClockAndHighlight() {
+            const now = new Date();
+            const currentSecs = (now.getHours() * 3600) + (now.getMinutes() * 60) + now.getSeconds();
+            
+            if (liveClock) {
+                liveClock.innerText = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+            }
+            if (dateMasehi) {
+                dateMasehi.innerText = now.toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+            }
+
+            if (!currentSchedule || !currentSchedule.subuh) return;
+
+            let prayers = [
+                { id: 'imsak', time: timeToSeconds(currentSchedule.imsak), name: 'Imsak' },
+                { id: 'subuh', time: timeToSeconds(currentSchedule.subuh), name: 'Subuh' },
+                { id: 'syuruq', time: timeToSeconds(currentSchedule.syuruq), name: 'Syuruq' },
+                { id: 'zuhur', time: timeToSeconds(currentSchedule.zuhur), name: 'Dzuhur' },
+                { id: 'asar', time: timeToSeconds(currentSchedule.asar), name: 'Ashar' },
+                { id: 'magrib', time: timeToSeconds(currentSchedule.magrib), name: 'Maghrib' },
+                { id: 'isya', time: timeToSeconds(currentSchedule.isya), name: 'Isya' }
+            ];
+
+            let activeId = 'isya';
+            let nextPrayer = prayers[0];
+
+            for (let i = 0; i < prayers.length; i++) {
+                if (currentSecs < prayers[i].time) {
+                    activeId = i === 0 ? 'isya' : prayers[i - 1].id;
+                    nextPrayer = prayers[i];
+                    break;
+                } else if (i === prayers.length - 1) {
+                    activeId = prayers[i].id;
+                    nextPrayer = { name: 'Imsak', time: prayers[0].time + 86400 }; 
+                }
+            }
+
+            ['imsak', 'subuh', 'syuruq', 'zuhur', 'asar', 'magrib', 'isya'].forEach(p => {
+                let el = document.getElementById(`col-${p}`);
+                if (el) el.classList.remove('active');
+            });
+
+            let activeCard = document.getElementById(`col-${activeId}`);
+            if (activeCard) activeCard.classList.add('active');
+
+            let diffSecs = nextPrayer.time - currentSecs;
+            let h = Math.floor(diffSecs / 3600);
+            let m = Math.floor((diffSecs % 3600) / 60);
+            let s = diffSecs % 60;
+            if (countdownSalat) {
+                countdownSalat.innerText = `${nextPrayer.name} -${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            }
+
+            if (dateHijriah && currentSchedule.magrib) {
+                let magribSecs = timeToSeconds(currentSchedule.magrib);
+                let hijriDateObj = new Date();
+                if (currentSecs >= magribSecs) hijriDateObj.setDate(hijriDateObj.getDate() + 1);
+                dateHijriah.innerText = getHijriDate(hijriDateObj);
+            }
+        }
+
+        function initSlideshow() {
+            if (!slideshowContainer) return;
+            slideshowContainer.innerHTML = '';
+            slidesImages.forEach((url, index) => {
+                let img = document.createElement("img");
+                img.src = url;
+                img.className = `slide-img ${index === 0 ? 'active' : ''}`;
+                slideshowContainer.appendChild(img);
+            });
+
+            if (slideshowInterval) clearInterval(slideshowInterval);
+            slideshowInterval = setInterval(() => {
+                const imgs = slideshowContainer.querySelectorAll('.slide-img');
+                if (imgs.length === 0) return;
+                imgs[currentSlideIndex].classList.remove('active');
+                currentSlideIndex = (currentSlideIndex + 1) % imgs.length;
+                imgs[currentSlideIndex].classList.add('active');
+            }, 7000);
+        }
+
+        setInterval(updateClockAndHighlight, 1000);
+        updateClockAndHighlight();
+        fetchData();
+        setInterval(fetchData, 60000);
+    });
+    </script>
 </body>
 </html>
