@@ -3,83 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digital Prayer Clock</title>
+    <title>Digital Prayer Clock - Modern Edition</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #000; overflow: hidden; width: 100vw; height: 100vh; }
+        
+        /* Background Slideshow */
         .slideshow-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
         .slide-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.5s ease-in-out; }
         .slide-img.active { opacity: 1; }
         
         .tv-container { position: relative; width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; z-index: 10; }
         
-        /* Header Atas */
-        .top-bar { background: rgba(255, 255, 255, 0.85); display: flex; align-items: center; justify-content: space-between; padding: 5px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
-        .divider { width: 2px; height: 28px; background-color: #f39c12; border-radius: 2px; margin: 0 10px; }
+        /* ================= GAYA MODERN (GLASSMORPHISM) ================= */
+        .top-bar { 
+            background: rgba(255, 255, 255, 0.85); 
+            backdrop-filter: blur(12px); 
+            -webkit-backdrop-filter: blur(12px);
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 8px 25px; margin: 15px 20px 5px 20px; border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.4);
+        }
+        .divider { width: 2px; height: 35px; background-color: rgba(243, 156, 18, 0.6); border-radius: 2px; margin: 0 15px; }
+        
         .top-left { flex: 1; text-align: left; }
-        .clock-display { font-size: 30px; font-weight: bold; color: #2c3e50; letter-spacing: 1px; }
+        .clock-display { font-size: 36px; font-weight: 800; color: #1e272e; letter-spacing: 2px; text-shadow: 1px 1px 2px rgba(255,255,255,0.8); }
+        
         .top-center { flex: 2; text-align: center; }
-        .top-center h1 { font-size: 18px; color: #2c3e50; margin-bottom: 0px; font-weight: bold; }
-        .top-center p { font-size: 12px; color: #576574; }
+        .top-center h1 { font-size: 20px; color: #1e272e; margin-bottom: 2px; font-weight: 800; text-shadow: 1px 1px 2px rgba(255,255,255,0.8); }
+        .top-center p { font-size: 13px; color: #485460; font-weight: 500; }
+        
         .top-right { flex: 1; text-align: right; }
-        .date-masehi { font-size: 14px; font-weight: bold; color: #2c3e50; }
-        .date-hijriah { font-size: 12px; color: #576574; margin-top: 1px; font-weight: 500; }
+        .date-masehi { font-size: 15px; font-weight: 700; color: #1e272e; }
+        .date-hijriah { font-size: 13px; color: #485460; margin-top: 2px; font-weight: 600; }
         
         .spacer { flex: 1; }
         
         /* Info Bar */
-        .info-bar { background: rgba(255, 255, 255, 0.8); display: flex; justify-content: space-between; padding: 4px 15px; font-weight: bold; color: #2c3e50; font-size: 13px; border-bottom: 2px solid #bdc3c7; }
+        .info-bar { 
+            background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            display: flex; justify-content: space-between; 
+            padding: 6px 20px; margin: 0 20px 15px 20px; border-radius: 12px;
+            font-weight: 700; color: #2c3e50; font-size: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
         
         /* Tabel Jadwal Salat */
-        .schedule-table { display: flex; width: 100%; }
-        .schedule-col { flex: 1; text-align: center; display: flex; flex-direction: column; }
-        .sched-header { color: #fff; font-weight: bold; font-size: 13px; padding: 5px 0; text-transform: uppercase; }
-        .sched-time { background: rgba(255, 255, 255, 0.9); color: #000; font-size: 26px; font-weight: bold; padding: 6px 0; border-bottom: 4px solid transparent; transition: all 0.3s ease; }
+        .schedule-table { display: flex; width: 100%; padding: 0 20px; gap: 12px; }
+        .schedule-col { 
+            flex: 1; text-align: center; display: flex; flex-direction: column; 
+            border-radius: 16px; overflow: hidden; box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .sched-header { color: #fff; font-weight: 700; font-size: 14px; padding: 8px 0; text-transform: uppercase; letter-spacing: 1px; text-shadow: 1px 1px 3px rgba(0,0,0,0.3); }
+        .sched-time { color: #1e272e; font-size: 28px; font-weight: 800; padding: 10px 0; border-bottom: 5px solid transparent; }
         
         /* Warna Header */
-        .bg-imsak { background-color: #009432; }
-        .bg-subuh { background-color: #0652DD; }
-        .bg-syuruq { background-color: #12cbc4; }
-        .bg-zuhur { background-color: #f39c12; }
-        .bg-asar { background-color: #9b59b6; }
-        .bg-magrib { background-color: #e84118; }
-        .bg-isya { background-color: #5758BB; }
+        .bg-imsak { background: linear-gradient(135deg, #009432, #05c46b); }
+        .bg-subuh { background: linear-gradient(135deg, #0652DD, #4bcffa); }
+        .bg-syuruq { background: linear-gradient(135deg, #12cbc4, #0fb9b1); }
+        .bg-zuhur { background: linear-gradient(135deg, #f39c12, #ffdd59); }
+        .bg-asar { background: linear-gradient(135deg, #9b59b6, #d2dae2); color: #2c3e50 !important; text-shadow: none; }
+        .bg-magrib { background: linear-gradient(135deg, #e84118, #ff5e57); }
+        .bg-isya { background: linear-gradient(135deg, #5758BB, #808e9b); }
         
         /* Efek Menyala (Aktif) */
-        .schedule-col.active .sched-header { background-color: #f39c12 !important; }
-        .schedule-col.active .sched-time { background-color: #fff; color: #000; border-bottom: 4px solid #f39c12; }
+        .schedule-col.active { transform: scale(1.08) translateY(-5px); box-shadow: 0 15px 35px rgba(243, 156, 18, 0.5); border: 2px solid #f39c12; z-index: 2; }
+        .schedule-col.active .sched-header { background: linear-gradient(135deg, #e67e22, #f1c40f) !important; color: #fff !important; }
+        .schedule-col.active .sched-time { background: rgba(255,255,255,0.95); color: #000; border-bottom: 5px solid #f39c12; }
         
         /* Running Text */
-        .running-text-container { background: rgba(0, 0, 0, 0.85); padding: 8px; overflow: hidden; white-space: nowrap; }
-        .running-text { display: inline-block; color: #f1c40f; font-size: 15px; animation: marquee 40s linear infinite; }
+        .running-text-container { 
+            background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            margin: 15px 20px; padding: 10px 20px; border-radius: 50px; overflow: hidden; white-space: nowrap; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
+        }
+        .running-text { display: inline-block; color: #f1c40f; font-size: 16px; font-weight: 600; animation: marquee 35s linear infinite; letter-spacing: 0.5px; }
         @keyframes marquee { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
 
-        /* ================= LAYAR TAMBAHAN ================= */
-        /* Layar Iqomah */
+        /* ================= LAYAR TAMBAHAN (MODERN) ================= */
         .iqomah-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0, 0, 0, 0.9);
-            display: none; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 9998; color: #fff;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 9998; color: #fff;
         }
-        .iqomah-title { font-size: 50px; color: #f39c12; margin-bottom: 10px; letter-spacing: 3px; }
-        .iqomah-timer { font-size: 160px; font-weight: bold; color: #fff; margin-bottom: 10px; text-shadow: 0px 5px 15px rgba(243, 156, 18, 0.5); }
-        .iqomah-subtitle { font-size: 24px; color: #bdc3c7; }
-
-        /* Layar Gelap Total (Saat Shalat) */
-        .blank-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: #000;
-            display: none;
-            z-index: 9999;
-        }
+        .iqomah-title { font-size: 45px; color: #f1c40f; margin-bottom: 5px; letter-spacing: 5px; font-weight: 800; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .iqomah-timer { font-size: 180px; font-weight: 800; color: #fff; margin-bottom: 10px; text-shadow: 0px 10px 30px rgba(243, 156, 18, 0.6); line-height: 1; }
+        .iqomah-subtitle { font-size: 26px; color: #ecf0f1; font-weight: 500; letter-spacing: 1px; }
+        .blank-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: none; z-index: 9999; }
     </style>
 </head>
 <body>
-    <!-- Background Slideshow -->
     <div class="slideshow-container" id="slideshowContainer"></div>
 
-    <!-- Tampilan Utama Jam -->
     <div class="tv-container">
         <!-- Header Putih -->
         <div class="top-bar">
@@ -98,13 +116,13 @@
 
         <div class="spacer"></div>
 
-        <!-- Info Bar (Menuju Salat) -->
+        <!-- Info Bar -->
         <div class="info-bar">
             <div class="info-left" id="countdownSalat">Menuju Salat --:--:--</div>
             <div class="info-right" id="infoTambahan">Masjid Darussalam Al-Amin</div>
         </div>
 
-        <!-- Jadwal Warna-warni -->
+        <!-- Jadwal -->
         <div class="schedule-table">
             <div class="schedule-col" id="col-imsak"><div class="sched-header bg-imsak">Imsak</div><div class="sched-time" id="time-imsak">--:--</div></div>
             <div class="schedule-col" id="col-subuh"><div class="sched-header bg-subuh">Subuh</div><div class="sched-time" id="time-subuh">--:--</div></div>
@@ -131,10 +149,8 @@
     <!-- LAYAR GELAP SHALAT -->
     <div id="blankOverlay" class="blank-overlay"></div>
 
-    <!-- Panggil Config -->
     <script src="js/config.js"></script>
 
-    <!-- Skrip JS -->
     <script>
     document.addEventListener("DOMContentLoaded", function () {
         const liveClock = document.getElementById("liveClock");
@@ -151,11 +167,9 @@
         let slideshowInterval = null;
         let currentSchedule = {};
         let lastActivePrayer = null;
-
         let iqomahInterval = null;
         let blankTimeout = null;
 
-        // --- SISTEM SUARA BEEP (LEBIH PANJANG) ---
         function playBeep() {
             try {
                 const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -169,14 +183,11 @@
                     osc.frequency.setValueAtTime(850, startTime);
                     gain.gain.setValueAtTime(1, startTime);
                     gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
-                    
                     osc.connect(gain);
                     gain.connect(ctx.destination);
                     osc.start(startTime);
                     osc.stop(startTime + duration);
                 }
-
-                // Beep panjang 5 kali berturut-turut (Total alarm 5 detik)
                 createTone(now, 0.8);
                 createTone(now + 1.0, 0.8);
                 createTone(now + 2.0, 0.8);
@@ -187,9 +198,8 @@
             }
         }
 
-        // --- FUNGSI LAYAR IQOMAH (10 MENIT) ---
         function startIqomah() {
-            let iqomahTimeLeft = 10 * 60; // Diubah jadi 10 Menit dalam detik
+            let iqomahTimeLeft = 10 * 60; // 10 Menit
             document.getElementById('iqomahOverlay').style.display = 'flex';
             document.getElementById('iqomahTimer').innerText = '10:00';
             
@@ -209,12 +219,9 @@
             }, 1000);
         }
 
-        // --- FUNGSI LAYAR HITAM SHALAT (5 MENIT) ---
         function startBlankScreen() {
             document.getElementById('iqomahOverlay').style.display = 'none';
             document.getElementById('blankOverlay').style.display = 'block';
-            
-            // Tunggu 5 Menit lalu kembali normal
             blankTimeout = setTimeout(() => {
                 document.getElementById('blankOverlay').style.display = 'none';
             }, 5 * 60 * 1000); 
@@ -229,9 +236,7 @@
                     appData = result.data;
                     updateUIFromDatabase();
                 }
-            } catch (error) {
-                console.error("Gagal mengambil data:", error);
-            }
+            } catch (error) {}
         }
 
         function updateUIFromDatabase() {
@@ -241,15 +246,11 @@
                     if (item.kunci === "lokasi" && lokasiDisplay) lokasiDisplay.innerText = item.nilai;
                 });
             }
-
             if (appData.ALARM) {
                 appData.ALARM.forEach(item => {
-                    if (item.kunci === "running_text" && runningTextContent) {
-                        runningTextContent.innerText = item.nilai;
-                    }
+                    if (item.kunci === "running_text" && runningTextContent) runningTextContent.innerText = item.nilai;
                 });
             }
-
             if (appData.JADWAL_SHOLAT && appData.JADWAL_SHOLAT.length > 0) {
                 let now = new Date();
                 let year = now.getFullYear();
@@ -277,12 +278,10 @@
                     document.getElementById("time-isya").innerText = cleanTime(currentSchedule.isya);
                 }
             }
-
             if (appData.SLIDESHOW) {
                 let activeSlides = appData.SLIDESHOW.filter(s => String(s.aktif).toLowerCase() === "true");
                 if (activeSlides.length > 0) {
-                    let slidesImages = activeSlides.map(s => s.url_foto);
-                    initSlideshow(slidesImages);
+                    initSlideshow(activeSlides.map(s => s.url_foto));
                 }
             }
         }
@@ -317,7 +316,6 @@
             if (dateMasehi) {
                 dateMasehi.innerText = now.toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
             }
-
             if (!currentSchedule || !currentSchedule.subuh) return;
 
             let prayers = [
@@ -330,45 +328,66 @@
                 { id: 'isya', time: timeToSeconds(currentSchedule.isya), name: 'Isya' }
             ];
 
-            let activeId = 'isya';
+            // Penentuan waktu Asli (Untuk Alarm & Iqomah)
+            let alarmId = 'isya';
+            let currentPrayer = prayers[6];
             let nextPrayer = prayers[0];
 
             for (let i = 0; i < prayers.length; i++) {
                 if (currentSecs < prayers[i].time) {
-                    activeId = i === 0 ? 'isya' : prayers[i - 1].id;
+                    alarmId = i === 0 ? 'isya' : prayers[i - 1].id;
+                    currentPrayer = i === 0 ? prayers[6] : prayers[i - 1];
                     nextPrayer = prayers[i];
                     break;
                 } else if (i === prayers.length - 1) {
-                    activeId = prayers[i].id;
-                    nextPrayer = { name: 'Imsak', time: prayers[0].time + 86400 }; 
+                    alarmId = prayers[i].id;
+                    currentPrayer = prayers[i];
+                    nextPrayer = { name: 'Imsak', time: prayers[0].time + 86400, id: 'imsak' }; 
                 }
             }
 
-            // TRIGGER ALARM DAN IQOMAH
-            if (lastActivePrayer !== null && lastActivePrayer !== activeId) {
-                playBeep(); // Bunyi lebih panjang saat masuk waktu baru
-                
-                if (['subuh', 'zuhur', 'asar', 'magrib', 'isya'].includes(activeId)) {
+            // TRIGGER ALARM BEBAS DELAY
+            if (lastActivePrayer !== null && lastActivePrayer !== alarmId) {
+                playBeep(); 
+                if (['subuh', 'zuhur', 'asar', 'magrib', 'isya'].includes(alarmId)) {
                     startIqomah();
                 }
             }
-            lastActivePrayer = activeId;
+            lastActivePrayer = alarmId;
 
+            // ================= LOGIKA DELAY 20 MENIT UNTUK LAYAR =================
+            let displayId = alarmId;
+            let timeSincePrayer = currentSecs - currentPrayer.time;
+            if (timeSincePrayer < 0) timeSincePrayer += 86400; // Penyesuaian jika lewat tengah malam
+
+            if (timeSincePrayer <= 1200) {
+                // Selama 20 Menit Pertama: Info bar bertahan di shalat saat ini
+                displayId = currentPrayer.id;
+                if (countdownSalat) {
+                    countdownSalat.innerText = `Waktu ${currentPrayer.name} Sedang Berlangsung`;
+                }
+            } else {
+                // Setelah 20 Menit Lewat: Fokus pindah ke jadwal berikutnya
+                displayId = nextPrayer.id;
+                let diffSecs = nextPrayer.time - currentSecs;
+                if (diffSecs < 0) diffSecs += 86400;
+                
+                let h = Math.floor(diffSecs / 3600);
+                let m = Math.floor((diffSecs % 3600) / 60);
+                let s = diffSecs % 60;
+                if (countdownSalat) {
+                    countdownSalat.innerText = `Menuju ${nextPrayer.name} -${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+                }
+            }
+            // ====================================================================
+
+            // Ganti warna kartu
             ['imsak', 'subuh', 'syuruq', 'zuhur', 'asar', 'magrib', 'isya'].forEach(p => {
                 let el = document.getElementById(`col-${p}`);
                 if (el) el.classList.remove('active');
             });
-
-            let activeCard = document.getElementById(`col-${activeId}`);
+            let activeCard = document.getElementById(`col-${displayId}`);
             if (activeCard) activeCard.classList.add('active');
-
-            let diffSecs = nextPrayer.time - currentSecs;
-            let h = Math.floor(diffSecs / 3600);
-            let m = Math.floor((diffSecs % 3600) / 60);
-            let s = diffSecs % 60;
-            if (countdownSalat) {
-                countdownSalat.innerText = `${nextPrayer.name} -${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-            }
 
             if (dateHijriah && currentSchedule.magrib) {
                 let magribSecs = timeToSeconds(currentSchedule.magrib);
