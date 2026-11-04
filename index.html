@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digital Prayer Clock - Modern Edition</title>
+    <title>Digital Prayer Clock - Ultra Clear Edition</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #000; overflow: hidden; width: 100vw; height: 100vh; }
@@ -15,50 +15,66 @@
         
         .tv-container { position: relative; width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; z-index: 10; }
         
-        /* ================= GAYA MODERN (GLASSMORPHISM) ================= */
-        .top-bar { 
-            background: rgba(255, 255, 255, 0.85); 
-            backdrop-filter: blur(12px); 
-            -webkit-backdrop-filter: blur(12px);
-            display: flex; align-items: center; justify-content: space-between; 
-            padding: 8px 25px; margin: 15px 20px 5px 20px; border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.4);
-        }
-        .divider { width: 2px; height: 35px; background-color: rgba(243, 156, 18, 0.6); border-radius: 2px; margin: 0 15px; }
+        /* ================= GAYA ULTRA-CLEAR GLASSMORPHISM ================= */
         
+        /* Header Atas (Sangat Transparan) */
+        .top-bar { 
+            background: rgba(255, 255, 255, 0.25); /* Transparansi tingkat tinggi */
+            backdrop-filter: blur(8px); 
+            -webkit-backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 6px 20px; 
+            margin: 12px 15px 5px 15px; /* Margin dipangkas */
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        .divider { width: 2px; height: 30px; background-color: rgba(243, 156, 18, 0.8); border-radius: 2px; margin: 0 15px; }
+        
+        /* Efek Teks Glow agar terbaca di background apapun */
         .top-left { flex: 1; text-align: left; }
-        .clock-display { font-size: 36px; font-weight: 800; color: #1e272e; letter-spacing: 2px; text-shadow: 1px 1px 2px rgba(255,255,255,0.8); }
+        .clock-display { font-size: 34px; font-weight: 900; color: #000; letter-spacing: 2px; text-shadow: 0px 0px 10px #fff, 0px 0px 5px #fff; }
         
         .top-center { flex: 2; text-align: center; }
-        .top-center h1 { font-size: 20px; color: #1e272e; margin-bottom: 2px; font-weight: 800; text-shadow: 1px 1px 2px rgba(255,255,255,0.8); }
-        .top-center p { font-size: 13px; color: #485460; font-weight: 500; }
+        .top-center h1 { font-size: 20px; color: #000; margin-bottom: 0px; font-weight: 900; text-shadow: 0px 0px 10px #fff, 0px 0px 5px #fff; }
+        .top-center p { font-size: 13px; color: #1e272e; font-weight: 700; text-shadow: 0px 0px 6px #fff; }
         
         .top-right { flex: 1; text-align: right; }
-        .date-masehi { font-size: 15px; font-weight: 700; color: #1e272e; }
-        .date-hijriah { font-size: 13px; color: #485460; margin-top: 2px; font-weight: 600; }
+        .date-masehi { font-size: 15px; font-weight: 900; color: #000; text-shadow: 0px 0px 10px #fff, 0px 0px 5px #fff; }
+        .date-hijriah { font-size: 13px; color: #1e272e; margin-top: 2px; font-weight: 700; text-shadow: 0px 0px 6px #fff; }
         
+        /* Ruang Kosong (Maksimal untuk Background) */
         .spacer { flex: 1; }
         
-        /* Info Bar */
+        /* Info Bar (Hitam Transparan Pipih) */
         .info-bar { 
-            background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.4); 
+            backdrop-filter: blur(5px); 
+            -webkit-backdrop-filter: blur(5px);
             display: flex; justify-content: space-between; 
-            padding: 6px 20px; margin: 0 20px 15px 20px; border-radius: 12px;
-            font-weight: 700; color: #2c3e50; font-size: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            padding: 4px 20px; margin: 0 15px 10px 15px;
+            border-radius: 10px;
+            font-weight: 700; color: #f1c40f; font-size: 13px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        
+        /* Tabel Jadwal Salat (Kaca Super Bening) */
+        .schedule-table { display: flex; width: 100%; padding: 0 15px; gap: 10px; }
+        
+        .schedule-col { 
+            flex: 1; text-align: center; display: flex; flex-direction: column; 
+            border-radius: 12px; overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            background: rgba(255, 255, 255, 0.15); /* 85% Transparan */
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: all 0.4s ease;
             border: 1px solid rgba(255,255,255,0.3);
         }
         
-        /* Tabel Jadwal Salat */
-        .schedule-table { display: flex; width: 100%; padding: 0 20px; gap: 12px; }
-        .schedule-col { 
-            flex: 1; text-align: center; display: flex; flex-direction: column; 
-            border-radius: 16px; overflow: hidden; box-shadow: 0 8px 25px rgba(0,0,0,0.25);
-            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid rgba(255,255,255,0.2);
-        }
-        
-        .sched-header { color: #fff; font-weight: 700; font-size: 14px; padding: 8px 0; text-transform: uppercase; letter-spacing: 1px; text-shadow: 1px 1px 3px rgba(0,0,0,0.3); }
-        .sched-time { color: #1e272e; font-size: 28px; font-weight: 800; padding: 10px 0; border-bottom: 5px solid transparent; }
+        .sched-header { color: #fff; font-weight: 700; font-size: 13px; padding: 6px 0; text-transform: uppercase; letter-spacing: 1px; text-shadow: 1px 1px 3px rgba(0,0,0,0.5); }
+        .sched-time { color: #000; font-size: 26px; font-weight: 900; padding: 8px 0; border-bottom: 4px solid transparent; text-shadow: 0px 0px 10px rgba(255,255,255,0.9), 0px 0px 5px #fff; }
         
         /* Warna Header */
         .bg-imsak { background: linear-gradient(135deg, #009432, #05c46b); }
@@ -70,17 +86,27 @@
         .bg-isya { background: linear-gradient(135deg, #5758BB, #808e9b); }
         
         /* Efek Menyala (Aktif) */
-        .schedule-col.active { transform: scale(1.08) translateY(-5px); box-shadow: 0 15px 35px rgba(243, 156, 18, 0.5); border: 2px solid #f39c12; z-index: 2; }
-        .schedule-col.active .sched-header { background: linear-gradient(135deg, #e67e22, #f1c40f) !important; color: #fff !important; }
-        .schedule-col.active .sched-time { background: rgba(255,255,255,0.95); color: #000; border-bottom: 5px solid #f39c12; }
-        
-        /* Running Text */
-        .running-text-container { 
-            background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            margin: 15px 20px; padding: 10px 20px; border-radius: 50px; overflow: hidden; white-space: nowrap; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
+        .schedule-col.active { 
+            transform: scale(1.05) translateY(-3px); 
+            box-shadow: 0 10px 25px rgba(243, 156, 18, 0.5); 
+            border: 2px solid #f39c12;
+            z-index: 2;
         }
-        .running-text { display: inline-block; color: #f1c40f; font-size: 16px; font-weight: 600; animation: marquee 35s linear infinite; letter-spacing: 0.5px; }
+        .schedule-col.active .sched-header { background: linear-gradient(135deg, #e67e22, #f1c40f) !important; color: #fff !important; }
+        .schedule-col.active .sched-time { background: rgba(255,255,255,0.9); color: #000; border-bottom: 4px solid #f39c12; text-shadow: none; }
+        
+        /* Running Text (Hitam Transparan Pipih) */
+        .running-text-container { 
+            background: rgba(0, 0, 0, 0.55); 
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            margin: 10px 15px 12px 15px; padding: 8px 20px; 
+            border-radius: 50px; 
+            overflow: hidden; white-space: nowrap; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        .running-text { display: inline-block; color: #f1c40f; font-size: 15px; font-weight: 600; animation: marquee 35s linear infinite; letter-spacing: 0.5px; }
         @keyframes marquee { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
 
         /* ================= LAYAR TAMBAHAN (MODERN) ================= */
@@ -99,7 +125,7 @@
     <div class="slideshow-container" id="slideshowContainer"></div>
 
     <div class="tv-container">
-        <!-- Header Putih -->
+        <!-- Header Atas (Bening) -->
         <div class="top-bar">
             <div class="top-left"><div class="clock-display" id="liveClock">00:00:00</div></div>
             <div class="divider"></div>
@@ -116,13 +142,13 @@
 
         <div class="spacer"></div>
 
-        <!-- Info Bar -->
+        <!-- Info Bar (Bening Gelap) -->
         <div class="info-bar">
             <div class="info-left" id="countdownSalat">Menuju Salat --:--:--</div>
             <div class="info-right" id="infoTambahan">Masjid Darussalam Al-Amin</div>
         </div>
 
-        <!-- Jadwal -->
+        <!-- Jadwal Bening -->
         <div class="schedule-table">
             <div class="schedule-col" id="col-imsak"><div class="sched-header bg-imsak">Imsak</div><div class="sched-time" id="time-imsak">--:--</div></div>
             <div class="schedule-col" id="col-subuh"><div class="sched-header bg-subuh">Subuh</div><div class="sched-time" id="time-subuh">--:--</div></div>
@@ -328,7 +354,6 @@
                 { id: 'isya', time: timeToSeconds(currentSchedule.isya), name: 'Isya' }
             ];
 
-            // Penentuan waktu Asli (Untuk Alarm & Iqomah)
             let alarmId = 'isya';
             let currentPrayer = prayers[6];
             let nextPrayer = prayers[0];
@@ -346,7 +371,6 @@
                 }
             }
 
-            // TRIGGER ALARM BEBAS DELAY
             if (lastActivePrayer !== null && lastActivePrayer !== alarmId) {
                 playBeep(); 
                 if (['subuh', 'zuhur', 'asar', 'magrib', 'isya'].includes(alarmId)) {
@@ -355,19 +379,15 @@
             }
             lastActivePrayer = alarmId;
 
-            // ================= LOGIKA DELAY 20 MENIT UNTUK LAYAR =================
+            // ================= LOGIKA DELAY 20 MENIT =================
             let displayId = alarmId;
             let timeSincePrayer = currentSecs - currentPrayer.time;
-            if (timeSincePrayer < 0) timeSincePrayer += 86400; // Penyesuaian jika lewat tengah malam
+            if (timeSincePrayer < 0) timeSincePrayer += 86400;
 
             if (timeSincePrayer <= 1200) {
-                // Selama 20 Menit Pertama: Info bar bertahan di shalat saat ini
                 displayId = currentPrayer.id;
-                if (countdownSalat) {
-                    countdownSalat.innerText = `Waktu ${currentPrayer.name} Sedang Berlangsung`;
-                }
+                if (countdownSalat) countdownSalat.innerText = `Waktu ${currentPrayer.name} Sedang Berlangsung`;
             } else {
-                // Setelah 20 Menit Lewat: Fokus pindah ke jadwal berikutnya
                 displayId = nextPrayer.id;
                 let diffSecs = nextPrayer.time - currentSecs;
                 if (diffSecs < 0) diffSecs += 86400;
@@ -375,13 +395,9 @@
                 let h = Math.floor(diffSecs / 3600);
                 let m = Math.floor((diffSecs % 3600) / 60);
                 let s = diffSecs % 60;
-                if (countdownSalat) {
-                    countdownSalat.innerText = `Menuju ${nextPrayer.name} -${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-                }
+                if (countdownSalat) countdownSalat.innerText = `Menuju ${nextPrayer.name} -${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
             }
-            // ====================================================================
 
-            // Ganti warna kartu
             ['imsak', 'subuh', 'syuruq', 'zuhur', 'asar', 'magrib', 'isya'].forEach(p => {
                 let el = document.getElementById(`col-${p}`);
                 if (el) el.classList.remove('active');
@@ -425,4 +441,3 @@
     </script>
 </body>
 </html>
-
