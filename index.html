@@ -3,26 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digital Prayer Clock - Ultra Compact Dark</title>
+    <title>Digital Prayer Clock - Ultra Compact Lite</title>
     <style>
+        /* ================= CSS SUPER RINGAN & PIPIH ================= */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #000; overflow: hidden; width: 100vw; height: 100vh; }
         
         .slideshow-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
-        .slide-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.5s ease-in-out; }
+        .slide-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1s ease-in-out; }
         .slide-img.active { opacity: 1; }
         
-        .tv-container { position: relative; width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; z-index: 10; padding: 10px 15px; }
+        /* Padding bawah dikurangi agar lebih mepet ke tepi TV */
+        .tv-container { position: relative; width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; z-index: 10; padding: 10px 15px 6px 15px; }
         
-        /* ================= TEMA DARK GLASS & SUPER KECIL ================= */
-        
-        /* Header Atas (Gelap Transparan, Nempel Atas) */
+        /* Header Atas */
         .top-bar { 
-            background: rgba(0, 0, 0, 0.5); 
-            backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+            background: rgba(0, 0, 0, 0.75); 
             display: flex; align-items: center; justify-content: space-between; 
             padding: 5px 20px; border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1); 
         }
         .divider { width: 1px; height: 25px; background-color: rgba(255,255,255,0.2); margin: 0 15px; }
         
@@ -37,34 +36,32 @@
         .date-masehi { font-size: 13px; font-weight: 700; color: #fff; }
         .date-hijriah { font-size: 11px; color: #bdc3c7; margin-top: 1px; }
         
-        /* Spacer super besar di tengah agar background terekspos */
         .spacer { flex: 1; }
         
-        /* Grup Elemen Bawah (Dirapatkan agar tidak memakan layar) */
-        .bottom-group { display: flex; flex-direction: column; gap: 6px; }
+        /* ================= GRUP BAWAH (SANGAT PIPIH) ================= */
+        .bottom-group { display: flex; flex-direction: column; gap: 4px; } /* Jarak antar elemen dirapatkan */
 
-        /* Info Bar */
+        /* Info Bar Pipih */
         .info-bar { 
-            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(5px); 
+            background: rgba(0, 0, 0, 0.75);
             display: flex; justify-content: space-between; 
-            padding: 4px 15px; border-radius: 8px;
-            font-weight: 700; color: #f1c40f; font-size: 12px; 
+            padding: 3px 15px; border-radius: 6px;
+            font-weight: 700; color: #f1c40f; font-size: 11px; 
             border: 1px solid rgba(255,255,255,0.1);
         }
         
-        /* Tabel Jadwal Salat */
-        .schedule-table { display: flex; width: 100%; gap: 6px; }
+        /* Tabel Jadwal Salat Pipih */
+        .schedule-table { display: flex; width: 100%; gap: 4px; } /* Jarak antar kotak dirapatkan */
         .schedule-col { 
             flex: 1; text-align: center; display: flex; flex-direction: column; 
-            border-radius: 10px; overflow: hidden;
-            background: rgba(0, 0, 0, 0.55); backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.15); transition: all 0.3s ease;
+            border-radius: 8px; overflow: hidden;
+            background: rgba(0, 0, 0, 0.75);
+            border: 1px solid rgba(255,255,255,0.1); 
         }
         
-        .sched-header { color: #fff; font-weight: 700; font-size: 10px; padding: 4px 0; text-transform: uppercase; letter-spacing: 1px; }
-        .sched-time { color: #fff; font-size: 20px; font-weight: 800; padding: 5px 0; border-bottom: 3px solid transparent; }
+        .sched-header { color: #fff; font-weight: 700; font-size: 9px; padding: 2px 0; text-transform: uppercase; letter-spacing: 0.5px; }
+        .sched-time { color: #fff; font-size: 18px; font-weight: 800; padding: 3px 0; border-bottom: 2px solid transparent; }
         
-        /* Warna Header (Lebih Solid agar kontras dengan kaca gelap) */
         .bg-imsak { background: #009432; }
         .bg-subuh { background: #0652DD; }
         .bg-syuruq { background: #12cbc4; }
@@ -73,28 +70,28 @@
         .bg-magrib { background: #e84118; }
         .bg-isya { background: #5758BB; }
         
-        /* Efek Menyala (Aktif) */
-        .schedule-col.active { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(243, 156, 18, 0.4); border: 1px solid #f39c12; }
+        /* Efek Menyala */
+        .schedule-col.active { background: rgba(0,0,0,0.9); border: 1px solid #f39c12; transform: scale(1.02); }
         .schedule-col.active .sched-header { background: #f39c12 !important; color: #000 !important; }
-        .schedule-col.active .sched-time { background: rgba(0,0,0,0.8); color: #f1c40f; border-bottom: 3px solid #f39c12; }
+        .schedule-col.active .sched-time { color: #f1c40f; border-bottom: 2px solid #f39c12; }
         
-        /* Running Text */
+        /* Running Text Pipih */
         .running-text-container { 
-            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px);
-            padding: 5px 15px; border-radius: 20px; overflow: hidden; white-space: nowrap; 
+            background: rgba(0, 0, 0, 0.85);
+            padding: 4px 15px; border-radius: 10px; overflow: hidden; white-space: nowrap; 
             border: 1px solid rgba(255,255,255,0.1);
         }
-        .running-text { display: inline-block; color: #fff; font-size: 13px; font-weight: 600; animation: marquee 35s linear infinite; }
+        .running-text { display: inline-block; color: #fff; font-size: 12px; font-weight: 600; animation: marquee 35s linear infinite; will-change: transform; }
         @keyframes marquee { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
 
         /* ================= LAYAR TAMBAHAN ================= */
         .iqomah-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.95);
             display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 9998; color: #fff;
         }
         .iqomah-title { font-size: 40px; color: #f1c40f; margin-bottom: 5px; font-weight: 800; letter-spacing: 3px; }
-        .iqomah-timer { font-size: 150px; font-weight: 900; color: #fff; margin-bottom: 10px; text-shadow: 0px 5px 20px rgba(243,156,18,0.5); line-height: 1; }
+        .iqomah-timer { font-size: 150px; font-weight: 900; color: #fff; margin-bottom: 10px; line-height: 1; }
         .iqomah-subtitle { font-size: 20px; color: #ecf0f1; font-weight: 500; }
         .blank-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: none; z-index: 9999; }
     </style>
@@ -103,7 +100,6 @@
     <div class="slideshow-container" id="slideshowContainer"></div>
 
     <div class="tv-container">
-        <!-- Header Atas -->
         <div class="top-bar">
             <div class="top-left"><div class="clock-display" id="liveClock">00:00:00</div></div>
             <div class="divider"></div>
@@ -120,7 +116,6 @@
 
         <div class="spacer"></div>
 
-        <!-- Grup Bawah (Rapat & Kecil) -->
         <div class="bottom-group">
             <div class="info-bar">
                 <div class="info-left" id="countdownSalat">Menuju Salat --:--:--</div>
@@ -173,6 +168,8 @@
         let lastActivePrayer = null;
         let iqomahInterval = null;
         let blankTimeout = null;
+        
+        let lastSlideshowData = ""; 
 
         function playBeep() {
             try {
@@ -197,13 +194,11 @@
                 createTone(now + 2.0, 0.8);
                 createTone(now + 3.0, 0.8);
                 createTone(now + 4.0, 0.8);
-            } catch (error) {
-                console.log("Audio diblokir browser:", error);
-            }
+            } catch (error) {}
         }
 
         function startIqomah() {
-            let iqomahTimeLeft = 10 * 60; // 10 Menit
+            let iqomahTimeLeft = 10 * 60; 
             document.getElementById('iqomahOverlay').style.display = 'flex';
             document.getElementById('iqomahTimer').innerText = '10:00';
             
@@ -285,7 +280,13 @@
             if (appData.SLIDESHOW) {
                 let activeSlides = appData.SLIDESHOW.filter(s => String(s.aktif).toLowerCase() === "true");
                 if (activeSlides.length > 0) {
-                    initSlideshow(activeSlides.map(s => s.url_foto));
+                    let newSlidesImages = activeSlides.map(s => s.url_foto);
+                    let newSlidesString = JSON.stringify(newSlidesImages);
+                    
+                    if (lastSlideshowData !== newSlidesString) {
+                        lastSlideshowData = newSlidesString;
+                        initSlideshow(newSlidesImages);
+                    }
                 }
             }
         }
@@ -357,7 +358,6 @@
             }
             lastActivePrayer = alarmId;
 
-            // ================= LOGIKA DELAY 20 MENIT =================
             let displayId = alarmId;
             let timeSincePrayer = currentSecs - currentPrayer.time;
             if (timeSincePrayer < 0) timeSincePrayer += 86400;
