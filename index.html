@@ -10,7 +10,6 @@
         body { background-color: #000; overflow: hidden; width: 100vw; height: 100vh; }
         
         .slideshow-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; background-color: #000; }
-        /* GPU Acceleration untuk pergantian gambar */
         .slide-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1s ease-in-out; will-change: opacity; transform: translateZ(0); }
         .slide-img.active { opacity: 1; }
         
@@ -51,7 +50,6 @@
             flex: 1; text-align: center; display: flex; flex-direction: column; 
             border-radius: 8px; overflow: hidden; background: rgba(0, 0, 0, 0.75);
             border: 1px solid rgba(255,255,255,0.1); 
-            /* Dihapus efek transition untuk mengurangi render GPU */
         }
         
         .sched-header { color: #fff; font-weight: 700; font-size: 9px; padding: 2px 0; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -73,21 +71,13 @@
             background: rgba(0, 0, 0, 0.85); padding: 4px 15px; border-radius: 10px; 
             overflow: hidden; white-space: nowrap; border: 1px solid rgba(255,255,255,0.1);
         }
-        /* GPU Acceleration mutlak untuk teks berjalan agar tidak lag */
         .running-text { 
             display: inline-block; color: #fff; font-size: 12px; font-weight: 600; 
             animation: marquee 35s linear infinite; will-change: transform; transform: translateZ(0); 
         }
         @keyframes marquee { 0% { transform: translate3d(100vw, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
 
-        .iqomah-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0, 0, 0, 0.95);
-            display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 9998; color: #fff;
-        }
-        .iqomah-title { font-size: 40px; color: #f1c40f; margin-bottom: 5px; font-weight: 800; letter-spacing: 3px; }
-        .iqomah-timer { font-size: 150px; font-weight: 900; color: #fff; margin-bottom: 10px; line-height: 1; font-variant-numeric: tabular-nums; }
-        .iqomah-subtitle { font-size: 20px; color: #ecf0f1; font-weight: 500; }
+        /* LAYAR GELAP SHALAT */
         .blank-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: none; z-index: 9999; }
     </style>
 </head>
@@ -133,13 +123,6 @@
         </div>
     </div>
 
-    <!-- LAYAR IQOMAH -->
-    <div id="iqomahOverlay" class="iqomah-overlay">
-        <h1 class="iqomah-title">WAKTU IQOMAH</h1>
-        <div class="iqomah-timer" id="iqomahTimer">10:00</div>
-        <p class="iqomah-subtitle">Mohon luruskan dan rapatkan shaf shalat</p>
-    </div>
-
     <!-- LAYAR GELAP SHALAT -->
     <div id="blankOverlay" class="blank-overlay"></div>
 
@@ -147,7 +130,6 @@
 
     <script>
     document.addEventListener("DOMContentLoaded", function () {
-        // Caching DOM Element agar TV tidak terus-menerus mencari id
         const elClock = document.getElementById("liveClock");
         const elDateM = document.getElementById("dateMasehi");
         const elDateH = document.getElementById("dateHijriah");
@@ -161,11 +143,8 @@
         let currentSlideIndex = 0;
         let slideshowInterval = null;
         let currentSchedule = {};
-        
-        let iqomahInterval = null;
         let blankTimeout = null;
         
-        // --- VARIABEL STATE UNTUK SMART-UPDATE ---
         let state = {
             clockStr: "",
             dateStr: "",
@@ -201,37 +180,13 @@
             } catch (error) {}
         }
 
-        function startIqomah() {
-            let iqomahTimeLeft = 10 * 60; 
-            const overlay = document.getElementById('iqomahOverlay');
-            const timerEl = document.getElementById('iqomahTimer');
-            
-            overlay.style.display = 'flex';
-            timerEl.innerText = '10:00';
-            
-            if (iqomahInterval) clearInterval(iqomahInterval);
-            if (blankTimeout) clearTimeout(blankTimeout);
-
-            iqomahInterval = setInterval(() => {
-                iqomahTimeLeft--;
-                let m = Math.floor(iqomahTimeLeft / 60);
-                let s = iqomahTimeLeft % 60;
-                timerEl.innerText = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-
-                if (iqomahTimeLeft <= 0) {
-                    clearInterval(iqomahInterval);
-                    startBlankScreen();
-                }
-            }, 1000);
-        }
-
         function startBlankScreen() {
-            document.getElementById('iqomahOverlay').style.display = 'none';
             const blankEl = document.getElementById('blankOverlay');
             blankEl.style.display = 'block';
+            if (blankTimeout) clearTimeout(blankTimeout);
             blankTimeout = setTimeout(() => {
                 blankEl.style.display = 'none';
-            }, 5 * 60 * 1000); 
+            }, 5 * 60 * 1000); // Layar gelap selama 5 menit
         }
 
         async function fetchData() {
@@ -329,14 +284,12 @@
             const now = new Date();
             const currentSecs = (now.getHours() * 3600) + (now.getMinutes() * 60) + now.getSeconds();
             
-            // 1. SMART UPDATE: Jam Masehi (Hanya render jika detik berubah)
             const newClockStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
             if (state.clockStr !== newClockStr) {
                 elClock.innerText = newClockStr;
                 state.clockStr = newClockStr;
             }
             
-            // 2. SMART UPDATE: Tanggal Masehi (Hanya render sekali sehari)
             const newDateStr = now.toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
             if (state.dateStr !== newDateStr) {
                 elDateM.innerText = newDateStr;
@@ -372,16 +325,15 @@
                 }
             }
 
-            // TRIGGER ALARM BEBAS STUCK
+            // TRIGGER ALARM & LANGSUNG MASUK LAYAR GELAP (TANPA TIMER IQOMAH)
             if (state.alarmId !== "" && state.alarmId !== newAlarmId) {
                 playBeep(); 
                 if (['subuh', 'zuhur', 'asar', 'magrib', 'isya'].includes(newAlarmId)) {
-                    startIqomah();
+                    startBlankScreen(); 
                 }
             }
             state.alarmId = newAlarmId;
 
-            // LOGIKA 20 MENIT (Penentu Tampilan)
             let newDisplayId = newAlarmId;
             let timeSincePrayer = currentSecs - currentPrayer.time;
             if (timeSincePrayer < 0) timeSincePrayer += 86400;
@@ -401,13 +353,11 @@
                 newCountdownStr = `Menuju ${nextPrayer.name} -${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
             }
 
-            // 3. SMART UPDATE: Hitung Mundur (Hanya render jika string berubah)
             if (state.countdownStr !== newCountdownStr) {
                 elCountdown.innerText = newCountdownStr;
                 state.countdownStr = newCountdownStr;
             }
 
-            // 4. SMART UPDATE: Highlight Aktif (Hanya hapus/tambah class saat pindah waktu)
             if (state.activeDisplayId !== newDisplayId) {
                 if (state.activeDisplayId !== "") {
                     let oldEl = document.getElementById(`col-${state.activeDisplayId}`);
@@ -415,17 +365,14 @@
                 }
                 let newEl = document.getElementById(`col-${newDisplayId}`);
                 if (newEl) newEl.classList.add('active');
-                
                 state.activeDisplayId = newDisplayId;
             }
 
-            // 5. SMART UPDATE: Tanggal Hijriah (Super Berat jika tidak dibatasi)
             if (currentSchedule.magrib) {
                 let magribSecs = timeToSeconds(currentSchedule.magrib);
                 let isAfterMagrib = currentSecs >= magribSecs;
                 let newHijriKey = now.getDate() + "-" + isAfterMagrib;
                 
-                // Mencegah konversi format Intl setiap 1 detik
                 if (state.hijriKey !== newHijriKey) {
                     let hijriDateObj = new Date();
                     if (isAfterMagrib) hijriDateObj.setDate(hijriDateObj.getDate() + 1);
